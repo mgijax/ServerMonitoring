@@ -35,7 +35,7 @@ import com.wordnik.swagger.annotations.Api;
  * </p>
  */
 @ApplicationPath("/rest")
-@Api(description="JaxRsActivator: This is the description", value="JaxRsActivator: This is the value")
+@Api(description="JaxRsActivator: This is the description", value="JaxRsActivator: This is the value", basePath="/rest")
 public class JaxRsActivator extends Application {
     /* class body intentionally left blank */
     @Override
