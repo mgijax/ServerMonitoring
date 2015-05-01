@@ -32,6 +32,15 @@ public class ServerData implements Serializable {
 	private String dataValue;
 	private Date dataTimeStamp;
 
+	public ServerData() { }
+	
+	public ServerData(ServerName serverName, DataType dataType, DataName dataName, String dataValue, Date dataTimeStamp) {
+		this.serverName = serverName;
+		this.dataType = dataType;
+		this.dataName = dataName;
+		this.dataValue = dataValue;
+		this.dataTimeStamp = dataTimeStamp;
+	}
 	public ServerName getServerName() {
 		return serverName;
 	}
