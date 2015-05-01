@@ -206,16 +206,6 @@
         	<version>7.0</version>
         	<scope>provided</scope>
         </dependency>
-        <dependency>
-        	<groupId>ant</groupId>
-        	<artifactId>ant-apache-log4j</artifactId>
-        	<version>1.6.5</version>
-        </dependency>
-        <dependency>
-        	<groupId>com.xeiam</groupId>
-        	<artifactId>xchart</artifactId>
-        	<version>1.2.1</version>
-        </dependency>
     </dependencies>
 
     <build>
