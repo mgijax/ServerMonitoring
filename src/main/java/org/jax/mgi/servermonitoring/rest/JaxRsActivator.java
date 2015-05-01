@@ -51,6 +51,8 @@ public class JaxRsActivator extends Application {
 
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(MemberResourceRESTService.class);
+        resources.add(ServerDataRESTService.class);
         resources.add(Member.class);
+        
     }
 }

@@ -22,6 +22,11 @@ public class DataType implements Serializable {
     private Long id;
 	private String type;
 	
+	public DataType() { }
+	
+	public DataType(String dataType) {
+		this.type = dataType;
+	}
 	public Long getId() {
 		return id;
 	}

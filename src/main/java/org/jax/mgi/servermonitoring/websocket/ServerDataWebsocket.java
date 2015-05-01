@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -54,6 +52,7 @@ public class ServerDataWebsocket {
 	}
 
 	public void onServerDataEvent(@Observes final ServerData data) {
+		System.out.println("ServerDataWebsocket: New Data: " + data);
 		try {
 			for (Session s : sessions) {
 				ServerDataDTO dto = new ServerDataDTO(data);

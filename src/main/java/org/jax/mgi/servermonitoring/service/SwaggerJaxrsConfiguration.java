@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 
+@SuppressWarnings("serial")
 @WebServlet(name = "SwaggerJaxrsConfiguration", loadOnStartup = 1)
 public class SwaggerJaxrsConfiguration extends HttpServlet {
 
@@ -23,7 +24,7 @@ public class SwaggerJaxrsConfiguration extends HttpServlet {
 			super.init(servletConfig);
 			System.out.println("Server Name: " + servletConfig.getServletName());
 			SwaggerConfig swaggerConfig = new SwaggerConfig();
-			swaggerConfig.setBasePath("http://localhost/rest");
+			swaggerConfig.setBasePath("http://localhost.jax.org/rest");
 			//swaggerConfig.setBasePath("rest");
 			swaggerConfig.setApiVersion("1.0.0");
 			swaggerConfig.setApiInfo(apiInfo());

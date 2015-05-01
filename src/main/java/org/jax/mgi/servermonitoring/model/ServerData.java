@@ -19,10 +19,10 @@ import com.wordnik.swagger.annotations.ApiModel;
 @ApiModel
 public class ServerData implements Serializable {
 
-    @Id
-    @GeneratedValue
-    private Long id;
-    
+	@Id
+	@GeneratedValue
+	private Long id;
+
 	private ServerName serverName;
 	private DataType dataType;
 	private DataName dataName;
@@ -33,13 +33,20 @@ public class ServerData implements Serializable {
 	private Date dataTimeStamp;
 
 	public ServerData() { }
-	
+
 	public ServerData(ServerName serverName, DataType dataType, DataName dataName, String dataValue, Date dataTimeStamp) {
 		this.serverName = serverName;
 		this.dataType = dataType;
 		this.dataName = dataName;
 		this.dataValue = dataValue;
 		this.dataTimeStamp = dataTimeStamp;
+	}
+
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
 	}
 	public ServerName getServerName() {
 		return serverName;

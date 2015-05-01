@@ -24,6 +24,12 @@ public class DataName implements Serializable {
     
 	private String name;
     
+	public DataName() { }
+	
+	public DataName(String dataName) {
+		this.name = dataName;
+	}
+
 	public Long getId() {
 		return id;
 	}

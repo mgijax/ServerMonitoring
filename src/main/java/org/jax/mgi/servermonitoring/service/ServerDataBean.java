@@ -16,16 +16,20 @@
  */
 package org.jax.mgi.servermonitoring.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.validation.constraints.NotNull;
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.jax.mgi.servermonitoring.model.DataName;
 import org.jax.mgi.servermonitoring.model.DataType;
 import org.jax.mgi.servermonitoring.model.ServerData;
@@ -47,33 +51,70 @@ public class ServerDataBean {
 
 	public void createEntry(ServerDataDTO data) throws Exception {
 		log.info("Creating: " + data);
-
 		ServerData serverData = getServerData(data);
-
 		em.persist(serverData);
 		serverDataSrc.fire(serverData);
+	}
+
+	public List<ServerDataDTO> listData() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<ServerData> criteria = cb.createQuery(ServerData.class);
+		Root<ServerData> data = criteria.from(ServerData.class);
+		criteria.select(data);
+		List<ServerData> list = em.createQuery(criteria).getResultList();
+		List<ServerDataDTO> dtos = new ArrayList<ServerDataDTO>();
+		for(ServerData d: list) {
+			dtos.add(new ServerDataDTO(d));
+		}
+		return dtos;
 	}
 
 	private ServerData getServerData(ServerDataDTO data) {
 		ServerName serverName = getServerName(data);
 		DataType dataType = getDataType(data);
 		DataName dataName = getDataName(data);
-		return new ServerData(serverName, dataType, dataName, data.getDataValue(), data.getDataTimeStamp());
+		return new ServerData(serverName, dataType, dataName, data.getDataValue(), new Date());
 	}
 
 	private DataName getDataName(ServerDataDTO data) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<DataName> criteria = cb.createQuery(DataName.class);
+			Root<DataName> dataName = criteria.from(DataName.class);
+			criteria.select(dataName).where(cb.equal(dataName.get("name"), data.getDataName()));
+			return em.createQuery(criteria).getSingleResult();
+		} catch(NoResultException e) {
+			DataName dataName = new DataName(data.getDataName());
+			em.persist(dataName);
+			return dataName;
+		}
 	}
 
 	private DataType getDataType(ServerDataDTO data) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<DataType> criteria = cb.createQuery(DataType.class);
+			Root<DataType> dataType = criteria.from(DataType.class);
+			criteria.select(dataType).where(cb.equal(dataType.get("type"), data.getDataType()));
+			return em.createQuery(criteria).getSingleResult();
+		} catch(NoResultException e) {
+			DataType dataType = new DataType(data.getDataType());
+			em.persist(dataType);
+			return dataType;
+		}
 	}
 
 	private ServerName getServerName(ServerDataDTO data) {
-		
-		return null;
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ServerName> criteria = cb.createQuery(ServerName.class);
+			Root<ServerName> serverName = criteria.from(ServerName.class);
+			criteria.select(serverName).where(cb.equal(serverName.get("name"), data.getServerName()));
+			return em.createQuery(criteria).getSingleResult();
+		} catch(NoResultException e) {
+			ServerName serverName = new ServerName(data.getServerName());
+			em.persist(serverName);
+			return serverName;
+		}
 	}
-
 }

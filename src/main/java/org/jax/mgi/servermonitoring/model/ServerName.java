@@ -21,8 +21,13 @@ public class ServerName implements Serializable {
     
 	private String name;
 
+	public ServerName() { }
 	
-    public Long getId() {
+    public ServerName(String serverName) {
+		this.name = serverName;
+	}
+
+	public Long getId() {
 		return id;
 	}
 

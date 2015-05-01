@@ -1,7 +1,6 @@
 package org.jax.mgi.servermonitoring.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -17,15 +16,15 @@ public class ServerDataDTO implements Serializable {
 	private String dataType;
 	private String dataName;
 	private String dataValue;
-	private Date dataTimeStamp;
 	
+	public ServerDataDTO() { }
 
     public ServerDataDTO(ServerData data) {
+    	this.id = data.getId();
 		this.serverName = data.getServerName().getName();
 		this.dataType = data.getDataType().getType();
 		this.dataName = data.getDataName().getName();
 		this.dataValue = data.getDataValue();
-		this.dataTimeStamp = data.getDataTimeStamp();
 	}
 	public Long getId() {
 		return id;
@@ -56,11 +55,5 @@ public class ServerDataDTO implements Serializable {
 	}
 	public void setDataValue(String dataValue) {
 		this.dataValue = dataValue;
-	}
-	public Date getDataTimeStamp() {
-		return dataTimeStamp;
-	}
-	public void setDataTimeStamp(Date dataTimeStamp) {
-		this.dataTimeStamp = dataTimeStamp;
 	}
 }
