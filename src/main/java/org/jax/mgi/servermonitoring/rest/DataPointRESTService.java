@@ -20,18 +20,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jax.mgi.servermonitoring.model.Member;
-import org.jax.mgi.servermonitoring.model.ServerDataDTO;
+import org.jax.mgi.servermonitoring.model.DataPointDTO;
 import org.jax.mgi.servermonitoring.service.ServerDataBean;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
-@Path("/serverdata")
-@Api(value = "/serverdata", description = "ServerDataRESTService: Server Data Service")
+@Path("/datapoint")
+@Api(value = "/datapoint", description = "Data Point REST Service: Server Data Point Service is used to input data points collected from each server that runs the Watch Dog python software")
 @RequestScoped
-public class ServerDataRESTService {
+public class DataPointRESTService {
 
 	@Inject
 	private Validator validator;
@@ -42,8 +41,8 @@ public class ServerDataRESTService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "createServerData: Creates a Server Data Entry")
-	public Response createServerData(@ApiParam(value = "New member to create", required = true) ServerDataDTO data) {
+	@ApiOperation(value = "Create Data Point: Creates a Data Point Entry for the specific collection of data")
+	public Response createServerData(@ApiParam(value = "New member to create", required = true) DataPointDTO data) {
 				
 		Response.ResponseBuilder builder = null;
 		
@@ -64,14 +63,14 @@ public class ServerDataRESTService {
 	}
 	
 	@GET
-	@ApiOperation(value = "listData: Gets a list of all the Server Data Entries in the system", notes="These are the notes", response=Member.class, responseContainer="List")
+	@ApiOperation(value = "List Data Points: Gets a list of all the Data Point Entries in the system", notes="These are the notes", response=DataPointDTO.class, responseContainer="List")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<ServerDataDTO> listData() {
+	public List<DataPointDTO> listData() {
 		return serverDataManager.listData();
 	}
 	
-	private void validateData(ServerDataDTO data) throws ConstraintViolationException, ValidationException {
-		Set<ConstraintViolation<ServerDataDTO>> violations = validator.validate(data);
+	private void validateData(DataPointDTO data) throws ConstraintViolationException, ValidationException {
+		Set<ConstraintViolation<DataPointDTO>> violations = validator.validate(data);
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
 		}

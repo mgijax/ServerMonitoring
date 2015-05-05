@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -17,14 +18,17 @@ import com.wordnik.swagger.annotations.ApiModel;
 @Entity
 @XmlRootElement
 @ApiModel
-public class ServerData implements Serializable {
+public class DataPoint implements Serializable {
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
+	@ManyToOne
 	private ServerName serverName;
+	@ManyToOne
 	private DataType dataType;
+	@ManyToOne
 	private DataName dataName;
 
 	@NotNull
@@ -32,9 +36,9 @@ public class ServerData implements Serializable {
 	private String dataValue;
 	private Date dataTimeStamp;
 
-	public ServerData() { }
+	public DataPoint() { }
 
-	public ServerData(ServerName serverName, DataType dataType, DataName dataName, String dataValue, Date dataTimeStamp) {
+	public DataPoint(ServerName serverName, DataType dataType, DataName dataName, String dataValue, Date dataTimeStamp) {
 		this.serverName = serverName;
 		this.dataType = dataType;
 		this.dataName = dataName;

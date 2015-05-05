@@ -32,8 +32,8 @@ import javax.persistence.criteria.Root;
 
 import org.jax.mgi.servermonitoring.model.DataName;
 import org.jax.mgi.servermonitoring.model.DataType;
-import org.jax.mgi.servermonitoring.model.ServerData;
-import org.jax.mgi.servermonitoring.model.ServerDataDTO;
+import org.jax.mgi.servermonitoring.model.DataPoint;
+import org.jax.mgi.servermonitoring.model.DataPointDTO;
 import org.jax.mgi.servermonitoring.model.ServerName;
 
 // The @Stateless annotation eliminates the need for manual transaction demarcation
@@ -47,36 +47,36 @@ public class ServerDataBean {
 	private EntityManager em;
 
 	@Inject
-	private Event<ServerData> serverDataSrc;
+	private Event<DataPoint> serverDataSrc;
 
-	public void createEntry(ServerDataDTO data) throws Exception {
+	public void createEntry(DataPointDTO data) throws Exception {
 		log.info("Creating: " + data);
-		ServerData serverData = getServerData(data);
+		DataPoint serverData = getServerData(data);
 		em.persist(serverData);
 		serverDataSrc.fire(serverData);
 	}
 
-	public List<ServerDataDTO> listData() {
+	public List<DataPointDTO> listData() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<ServerData> criteria = cb.createQuery(ServerData.class);
-		Root<ServerData> data = criteria.from(ServerData.class);
+		CriteriaQuery<DataPoint> criteria = cb.createQuery(DataPoint.class);
+		Root<DataPoint> data = criteria.from(DataPoint.class);
 		criteria.select(data);
-		List<ServerData> list = em.createQuery(criteria).getResultList();
-		List<ServerDataDTO> dtos = new ArrayList<ServerDataDTO>();
-		for(ServerData d: list) {
-			dtos.add(new ServerDataDTO(d));
+		List<DataPoint> list = em.createQuery(criteria).getResultList();
+		List<DataPointDTO> dtos = new ArrayList<DataPointDTO>();
+		for(DataPoint d: list) {
+			dtos.add(new DataPointDTO(d));
 		}
 		return dtos;
 	}
 
-	private ServerData getServerData(ServerDataDTO data) {
+	private DataPoint getServerData(DataPointDTO data) {
 		ServerName serverName = getServerName(data);
 		DataType dataType = getDataType(data);
 		DataName dataName = getDataName(data);
-		return new ServerData(serverName, dataType, dataName, data.getDataValue(), new Date());
+		return new DataPoint(serverName, dataType, dataName, data.getDataValue(), new Date());
 	}
 
-	private DataName getDataName(ServerDataDTO data) {
+	private DataName getDataName(DataPointDTO data) {
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<DataName> criteria = cb.createQuery(DataName.class);
@@ -90,7 +90,7 @@ public class ServerDataBean {
 		}
 	}
 
-	private DataType getDataType(ServerDataDTO data) {
+	private DataType getDataType(DataPointDTO data) {
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<DataType> criteria = cb.createQuery(DataType.class);
@@ -104,7 +104,7 @@ public class ServerDataBean {
 		}
 	}
 
-	private ServerName getServerName(ServerDataDTO data) {
+	private ServerName getServerName(DataPointDTO data) {
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<ServerName> criteria = cb.createQuery(ServerName.class);

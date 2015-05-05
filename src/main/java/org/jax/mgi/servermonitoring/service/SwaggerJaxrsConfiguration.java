@@ -22,10 +22,11 @@ public class SwaggerJaxrsConfiguration extends HttpServlet {
 	public void init(ServletConfig servletConfig) {
 		try {
 			super.init(servletConfig);
-			System.out.println("Server Name: " + servletConfig.getServletName());
+			System.out.println("getServletInfo(): " + getServletInfo());
+			System.out.println("getServletName(): " + getServletName());
 			SwaggerConfig swaggerConfig = new SwaggerConfig();
-			swaggerConfig.setBasePath("http://localhost.jax.org/rest");
-			//swaggerConfig.setBasePath("rest");
+			//swaggerConfig.setBasePath("http://localhost.jax.org/rest");
+			swaggerConfig.setBasePath("http://mgi-testapp3.jax.org:8080/rest");
 			swaggerConfig.setApiVersion("1.0.0");
 			swaggerConfig.setApiInfo(apiInfo());
 			ConfigFactory.setConfig(swaggerConfig);

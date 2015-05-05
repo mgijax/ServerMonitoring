@@ -13,8 +13,8 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.jax.mgi.servermonitoring.model.ServerData;
-import org.jax.mgi.servermonitoring.model.ServerDataDTO;
+import org.jax.mgi.servermonitoring.model.DataPoint;
+import org.jax.mgi.servermonitoring.model.DataPointDTO;
 
 @ServerEndpoint("/websocket")
 public class ServerDataWebsocket {
@@ -51,11 +51,11 @@ public class ServerDataWebsocket {
 		}
 	}
 
-	public void onServerDataEvent(@Observes final ServerData data) {
+	public void onServerDataEvent(@Observes final DataPoint data) {
 		System.out.println("ServerDataWebsocket: New Data: " + data);
 		try {
 			for (Session s : sessions) {
-				ServerDataDTO dto = new ServerDataDTO(data);
+				DataPointDTO dto = new DataPointDTO(data);
 				s.getBasicRemote().sendObject(dto);
 			}
 		} catch (IOException | EncodeException e) {

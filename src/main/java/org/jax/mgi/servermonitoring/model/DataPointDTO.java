@@ -9,29 +9,22 @@ import com.wordnik.swagger.annotations.ApiModel;
 @SuppressWarnings("serial")
 @XmlRootElement
 @ApiModel
-public class ServerDataDTO implements Serializable {
-	private Long id;
+public class DataPointDTO implements Serializable {
     
 	private String serverName;
 	private String dataType;
 	private String dataName;
 	private String dataValue;
 	
-	public ServerDataDTO() { }
+	public DataPointDTO() { }
 
-    public ServerDataDTO(ServerData data) {
-    	this.id = data.getId();
+    public DataPointDTO(DataPoint data) {
 		this.serverName = data.getServerName().getName();
 		this.dataType = data.getDataType().getType();
 		this.dataName = data.getDataName().getName();
 		this.dataValue = data.getDataValue();
 	}
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
+
 	public String getServerName() {
 		return serverName;
 	}
