@@ -1,7 +1,5 @@
 package org.jax.mgi.servermonitoring.model;
 
-import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -15,21 +13,21 @@ import com.wordnik.swagger.annotations.ApiModel;
 @Entity
 @XmlRootElement
 @ApiModel
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"))
-public class ServerName implements Serializable {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "property"))
+public class DataProperty {
 
 	@Id
     @GeneratedValue
     private Long id;
     
-	private String name;
+	private String property;
 
-	public ServerName() { }
+	public DataProperty() { }
 	
-    public ServerName(String serverName) {
-		this.name = serverName;
+    public DataProperty(String propertyName) {
+		this.property = propertyName;
 	}
-
+	
 	public Long getId() {
 		return id;
 	}
@@ -38,11 +36,12 @@ public class ServerName implements Serializable {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getProperty() {
+		return property;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setProperty(String property) {
+		this.property = property;
 	}
+	
 }

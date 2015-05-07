@@ -14,6 +14,7 @@ public class DataPointDTO implements Serializable {
 	private String serverName;
 	private String dataType;
 	private String dataName;
+	private String dataProperty;
 	private String dataValue;
 	
 	public DataPointDTO() { }
@@ -22,6 +23,7 @@ public class DataPointDTO implements Serializable {
 		this.serverName = data.getServerName().getName();
 		this.dataType = data.getDataType().getType();
 		this.dataName = data.getDataName().getName();
+		this.dataProperty = data.getDataProperty().getProperty();
 		this.dataValue = data.getDataValue();
 	}
 
@@ -42,6 +44,12 @@ public class DataPointDTO implements Serializable {
 	}
 	public void setDataName(String dataName) {
 		this.dataName = dataName;
+	}
+	public String getDataProperty() {
+		return dataProperty;
+	}
+	public void setDataProperty(String dataProperty) {
+		this.dataProperty = dataProperty;
 	}
 	public String getDataValue() {
 		return dataValue;

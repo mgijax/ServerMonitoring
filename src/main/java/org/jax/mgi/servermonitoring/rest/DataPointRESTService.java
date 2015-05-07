@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
-import org.jax.mgi.servermonitoring.service.ServerDataBean;
+import org.jax.mgi.servermonitoring.service.DataPointService;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -36,7 +36,7 @@ public class DataPointRESTService {
 	private Validator validator;
 	
 	@Inject
-	private ServerDataBean serverDataManager;
+	private DataPointService serverDataManager;
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

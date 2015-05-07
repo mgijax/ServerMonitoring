@@ -52,7 +52,6 @@ public class ServerDataWebsocket {
 	}
 
 	public void onServerDataEvent(@Observes final DataPoint data) {
-		System.out.println("ServerDataWebsocket: New Data: " + data);
 		try {
 			for (Session s : sessions) {
 				DataPointDTO dto = new DataPointDTO(data);

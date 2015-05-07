@@ -22,11 +22,11 @@
     <!-- The datasource is bound into JNDI at this location. We reference 
         this in META-INF/persistence.xml -->
     <datasource jndi-name="java:jboss/datasources/ServerMonitoringDS" pool-name="ServerMonitoring" enabled="true" use-java-context="true">
-        <connection-url>jdbc:postgresql://mgi-testdb3:5432/ServerMonitoring</connection-url>
+        <connection-url>jdbc:postgresql://${db.hostname}:5432/${db.database}</connection-url>
         <driver>postgres</driver>
         <security>
-            <user-name>mgd_dbo</user-name>
-            <password>db0dev</password>
+            <user-name>${db.username}</user-name>
+            <password>${db.password}</password>
         </security>
         <validation>
            <validate-on-match>false</validate-on-match>

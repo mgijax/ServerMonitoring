@@ -31,6 +31,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.jax.mgi.servermonitoring.model.DataName;
+import org.jax.mgi.servermonitoring.model.DataProperty;
 import org.jax.mgi.servermonitoring.model.DataType;
 import org.jax.mgi.servermonitoring.model.DataPoint;
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
@@ -38,7 +39,7 @@ import org.jax.mgi.servermonitoring.model.ServerName;
 
 // The @Stateless annotation eliminates the need for manual transaction demarcation
 @Stateless
-public class ServerDataBean {
+public class DataPointService {
 
 	@Inject
 	private Logger log;
@@ -50,7 +51,6 @@ public class ServerDataBean {
 	private Event<DataPoint> serverDataSrc;
 
 	public void createEntry(DataPointDTO data) throws Exception {
-		log.info("Creating: " + data);
 		DataPoint serverData = getServerData(data);
 		em.persist(serverData);
 		serverDataSrc.fire(serverData);
@@ -73,7 +73,8 @@ public class ServerDataBean {
 		ServerName serverName = getServerName(data);
 		DataType dataType = getDataType(data);
 		DataName dataName = getDataName(data);
-		return new DataPoint(serverName, dataType, dataName, data.getDataValue(), new Date());
+		DataProperty dataProperty = getDataProperty(data);
+		return new DataPoint(serverName, dataType, dataName, dataProperty, data.getDataValue(), new Date());
 	}
 
 	private DataName getDataName(DataPointDTO data) {
@@ -101,6 +102,20 @@ public class ServerDataBean {
 			DataType dataType = new DataType(data.getDataType());
 			em.persist(dataType);
 			return dataType;
+		}
+	}
+	
+	private DataProperty getDataProperty(DataPointDTO data) {
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<DataProperty> criteria = cb.createQuery(DataProperty.class);
+			Root<DataProperty> dataProperty = criteria.from(DataProperty.class);
+			criteria.select(dataProperty).where(cb.equal(dataProperty.get("property"), data.getDataProperty()));
+			return em.createQuery(criteria).getSingleResult();
+		} catch(NoResultException e) {
+			DataProperty dataProperty = new DataProperty(data.getDataProperty());
+			em.persist(dataProperty);
+			return dataProperty;
 		}
 	}
 

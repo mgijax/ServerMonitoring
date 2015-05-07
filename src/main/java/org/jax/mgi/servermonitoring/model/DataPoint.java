@@ -30,6 +30,8 @@ public class DataPoint implements Serializable {
 	private DataType dataType;
 	@ManyToOne
 	private DataName dataName;
+	@ManyToOne
+	private DataProperty dataProperty;
 
 	@NotNull
 	@NotEmpty
@@ -38,10 +40,11 @@ public class DataPoint implements Serializable {
 
 	public DataPoint() { }
 
-	public DataPoint(ServerName serverName, DataType dataType, DataName dataName, String dataValue, Date dataTimeStamp) {
+	public DataPoint(ServerName serverName, DataType dataType, DataName dataName, DataProperty dataProperty, String dataValue, Date dataTimeStamp) {
 		this.serverName = serverName;
 		this.dataType = dataType;
 		this.dataName = dataName;
+		this.dataProperty = dataProperty;
 		this.dataValue = dataValue;
 		this.dataTimeStamp = dataTimeStamp;
 	}
@@ -69,6 +72,12 @@ public class DataPoint implements Serializable {
 	}
 	public void setDataName(DataName dataName) {
 		this.dataName = dataName;
+	}
+	public DataProperty getDataProperty() {
+		return dataProperty;
+	}
+	public void setDataProperty(DataProperty dataProperty) {
+		this.dataProperty = dataProperty;
 	}
 	public String getDataValue() {
 		return dataValue;
