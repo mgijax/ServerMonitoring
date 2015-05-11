@@ -55,9 +55,9 @@ public class ServerDataWebsocket {
 		try {
 			for (Session s : sessions) {
 				DataPointDTO dto = new DataPointDTO(data);
-				s.getBasicRemote().sendObject(dto);
+				s.getBasicRemote().sendText(dto.toJSON());
 			}
-		} catch (IOException | EncodeException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		};

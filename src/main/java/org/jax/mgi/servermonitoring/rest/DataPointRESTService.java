@@ -17,9 +17,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jax.mgi.servermonitoring.model.DataPoint;
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
 import org.jax.mgi.servermonitoring.service.DataPointService;
 
@@ -36,7 +38,7 @@ public class DataPointRESTService {
 	private Validator validator;
 	
 	@Inject
-	private DataPointService serverDataManager;
+	private DataPointService dataPointManager;
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -50,7 +52,7 @@ public class DataPointRESTService {
 			// Validates member using bean validation
 			validateData(data);
 			
-			serverDataManager.createEntry(data);
+			dataPointManager.createDataPoint(data);
 
 			builder = Response.ok();
 		} catch (Exception e) {
@@ -65,8 +67,13 @@ public class DataPointRESTService {
 	@GET
 	@ApiOperation(value = "List Data Points: Gets a list of all the Data Point Entries in the system", notes="These are the notes", response=DataPointDTO.class, responseContainer="List")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<DataPointDTO> listData() {
-		return serverDataManager.listData();
+	public List<DataPointDTO> listDataPoints(
+			@ApiParam(name="serverName", value="serverNameValue") @QueryParam("serverName") String serverName,
+			@ApiParam(name="dataType", value="dataTypeValue") @QueryParam("dataType") String dataType,
+			@ApiParam(name="dataName", value="dataNameValue") @QueryParam("dataName") String dataName,
+			@ApiParam(name="dataProperty", value="dataPropertyValue") @QueryParam("dataProperty") String dataProperty
+			) {
+		return dataPointManager.listDataPoints(serverName, dataType, dataName, dataProperty);
 	}
 	
 	private void validateData(DataPointDTO data) throws ConstraintViolationException, ValidationException {

@@ -1,6 +1,7 @@
 package org.jax.mgi.servermonitoring.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -16,7 +17,8 @@ public class DataPointDTO implements Serializable {
 	private String dataName;
 	private String dataProperty;
 	private String dataValue;
-	
+	private Date dataTimeStamp;
+
 	public DataPointDTO() { }
 
     public DataPointDTO(DataPoint data) {
@@ -25,6 +27,7 @@ public class DataPointDTO implements Serializable {
 		this.dataName = data.getDataName().getName();
 		this.dataProperty = data.getDataProperty().getProperty();
 		this.dataValue = data.getDataValue();
+		this.dataTimeStamp = data.getDataTimeStamp();
 	}
 
 	public String getServerName() {
@@ -56,5 +59,14 @@ public class DataPointDTO implements Serializable {
 	}
 	public void setDataValue(String dataValue) {
 		this.dataValue = dataValue;
+	}
+	public Date getDataTimeStamp() {
+		return dataTimeStamp;
+	}
+	public void setDataTimeStamp(Date dataTimeStamp) {
+		this.dataTimeStamp = dataTimeStamp;
+	}
+	public String toJSON() {
+		return "{\"serverName\": \"" + serverName + "\", \"dataType\": \"" + dataType + "\", \"dataName\": \"" + dataName + "\", \"dataProperty\": \"" + dataProperty + "\", \"dataValue\": \"" + dataValue + "\", \"dataTimeStamp\": \"" + dataTimeStamp.getTime() + "\"}"; 
 	}
 }

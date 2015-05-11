@@ -26,9 +26,13 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
 import org.jax.mgi.servermonitoring.model.DataName;
 import org.jax.mgi.servermonitoring.model.DataProperty;
@@ -50,18 +54,49 @@ public class DataPointService {
 	@Inject
 	private Event<DataPoint> serverDataSrc;
 
-	public void createEntry(DataPointDTO data) throws Exception {
-		DataPoint serverData = getServerData(data);
+	public void createDataPoint(DataPointDTO data) throws Exception {
+		DataPoint serverData = getDataPoint(data);
 		em.persist(serverData);
 		serverDataSrc.fire(serverData);
 	}
 
-	public List<DataPointDTO> listData() {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<DataPoint> criteria = cb.createQuery(DataPoint.class);
-		Root<DataPoint> data = criteria.from(DataPoint.class);
-		criteria.select(data);
-		List<DataPoint> list = em.createQuery(criteria).getResultList();
+	public List<DataPointDTO> listDataPoints(String serverName, String dataType, String dataName, String dataProperty) {
+		
+		String query = "select dp from DataPoint dp where";
+		
+		if(serverName != null) {
+			query += " dp.serverName.name = :serverName AND";
+		}
+		if(dataType != null) {
+			query += " dp.dataType.type = :dataType AND";
+		}
+		if(dataName != null) {
+			query += " dp.dataName.name = :dataName AND";
+		}
+		if(dataProperty != null) {
+			query += " dp.dataProperty.property = :dataProperty AND";
+		}
+		query += " 1 = 1";
+		
+		Query q = em.createQuery(query);
+		
+		if(serverName != null) {
+			q.setParameter("serverName", serverName);
+		}
+		if(dataType != null) {
+			q.setParameter("dataType", dataType);
+		}
+		if(dataName != null) {
+			q.setParameter("dataName", dataName);
+		}
+		if(dataProperty != null) {
+			q.setParameter("dataProperty", dataProperty);
+		}
+
+		log.info("Query: " + query);
+		
+		List<DataPoint> list = q.getResultList();
+		
 		List<DataPointDTO> dtos = new ArrayList<DataPointDTO>();
 		for(DataPoint d: list) {
 			dtos.add(new DataPointDTO(d));
@@ -69,7 +104,7 @@ public class DataPointService {
 		return dtos;
 	}
 
-	private DataPoint getServerData(DataPointDTO data) {
+	private DataPoint getDataPoint(DataPointDTO data) {
 		ServerName serverName = getServerName(data);
 		DataType dataType = getDataType(data);
 		DataName dataName = getDataName(data);
@@ -79,11 +114,8 @@ public class DataPointService {
 
 	private DataName getDataName(DataPointDTO data) {
 		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<DataName> criteria = cb.createQuery(DataName.class);
-			Root<DataName> dataName = criteria.from(DataName.class);
-			criteria.select(dataName).where(cb.equal(dataName.get("name"), data.getDataName()));
-			return em.createQuery(criteria).getSingleResult();
+			return (DataName)em.createQuery("select dn from DataName dn where name = :name")
+				.setParameter("name", data.getDataName()).getSingleResult();
 		} catch(NoResultException e) {
 			DataName dataName = new DataName(data.getDataName());
 			em.persist(dataName);
@@ -93,11 +125,8 @@ public class DataPointService {
 
 	private DataType getDataType(DataPointDTO data) {
 		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<DataType> criteria = cb.createQuery(DataType.class);
-			Root<DataType> dataType = criteria.from(DataType.class);
-			criteria.select(dataType).where(cb.equal(dataType.get("type"), data.getDataType()));
-			return em.createQuery(criteria).getSingleResult();
+			return (DataType)em.createQuery("select dt from DataType dt where type = :type")
+					.setParameter("type", data.getDataType()).getSingleResult();
 		} catch(NoResultException e) {
 			DataType dataType = new DataType(data.getDataType());
 			em.persist(dataType);
@@ -107,11 +136,8 @@ public class DataPointService {
 	
 	private DataProperty getDataProperty(DataPointDTO data) {
 		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<DataProperty> criteria = cb.createQuery(DataProperty.class);
-			Root<DataProperty> dataProperty = criteria.from(DataProperty.class);
-			criteria.select(dataProperty).where(cb.equal(dataProperty.get("property"), data.getDataProperty()));
-			return em.createQuery(criteria).getSingleResult();
+			return (DataProperty)em.createQuery("select dp from DataProperty dp where property = :property")
+					.setParameter("property", data.getDataProperty()).getSingleResult();
 		} catch(NoResultException e) {
 			DataProperty dataProperty = new DataProperty(data.getDataProperty());
 			em.persist(dataProperty);
@@ -121,11 +147,8 @@ public class DataPointService {
 
 	private ServerName getServerName(DataPointDTO data) {
 		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<ServerName> criteria = cb.createQuery(ServerName.class);
-			Root<ServerName> serverName = criteria.from(ServerName.class);
-			criteria.select(serverName).where(cb.equal(serverName.get("name"), data.getServerName()));
-			return em.createQuery(criteria).getSingleResult();
+			return (ServerName)em.createQuery("select sn from ServerName sn where name = :name")
+					.setParameter("name", data.getServerName()).getSingleResult();
 		} catch(NoResultException e) {
 			ServerName serverName = new ServerName(data.getServerName());
 			em.persist(serverName);

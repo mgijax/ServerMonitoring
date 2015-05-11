@@ -1,0 +1,96 @@
+<html>
+<head>
+<style>
+@import url(resources/css/screen.css);
+</style>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<Script type="text/javascript">
+	var n = 600;
+	var data;
+	var chart;
+	var options;
+	
+	google.load('visualization', '1.1', {packages: ['corechart', 'line']});
+	google.setOnLoadCallback(drawBasic);
+	
+		
+	function drawBasic() {
+		data = new google.visualization.DataTable();
+		data.addColumn('datetime', 'X');
+		data.addColumn('number', 'Y');
+		
+		options = {
+			hAxis: {
+				title: 'Time'
+			},
+			vAxis: {
+				title: 'Value'
+			}
+		};
+		
+		chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		//chart.draw(data, options);				
+	}
+</Script>
+
+</head>
+
+<body>
+	<div id="sse">
+		<a href="javascript:void(0);" onclick="WebSocketTest()">Run WebSocket</a>
+	</div>
+
+
+	<div id="chart_div"></div>
+
+
+
+	<script type="text/javascript">
+
+			function WebSocketTest() {
+				if ("WebSocket" in window) {
+					// Let us open a web socket
+					var url = 'ws://' + window.location.host + '/websocket';
+					console.log(url);
+					var ws = new WebSocket(url);
+					ws.onopen = function()  {
+
+						$.ajax({
+							url: "http://" + window.location.host + "/rest/datapoint?serverName=localhost&dataType=Disk&dataProperty=Speed"
+						}).then(function(jsondata) {
+							for(var i = 0; i < jsondata.length; i++) {
+								data.addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
+							}
+							while(data.getNumberOfRows() > n) data.removeRow(0);
+							chart.draw(data, options);
+						});
+
+
+					};
+
+					ws.onmessage = function (evt) { 
+						if(evt.data == "session opened") return;
+						var msg = JSON.parse(evt.data);
+
+						if(!(msg.dataType == "Disk" && msg.dataProperty == "Speed")) return;
+
+						//console.log(msg);
+						//console.log("Adding Row: " + [new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
+						data.addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
+						while(data.getNumberOfRows() > n) data.removeRow(0);
+						chart.draw(data, options);
+					};
+					
+					ws.onclose = function() { 
+						alert("Connection is closed..."); 
+					};
+				} else {
+					alert("WebSocket NOT supported by your Browser!");
+				}
+			}
+			
+		</script>
+</body>
+</html>

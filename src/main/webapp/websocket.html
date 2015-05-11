@@ -1,0 +1,157 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<style>
+@import url(resources/css/screen.css);
+
+.x.axis line {
+	shape-renderings: auto;
+}
+
+.line {
+	fill: none;
+	stroke: #000;
+	stroke-width: 1.5px;
+}
+</style>
+</head>
+<body>
+	<div id="sse">
+		<a href="javascript:void(0);" onclick="WebSocketTest()">Run
+			WebSocket</a>
+	</div>
+	<div id="chart" style="margin-left: 50px;" />
+	<script>
+
+var n = 600;
+var data = [];
+
+  var margin = {top: 6, right: 0, bottom: 6, left: 50},
+		width = 960 - margin.right,
+		height = 520 - margin.top - margin.bottom;
+
+  var x = d3.scale.linear()
+		.domain([0, n - 1])
+		.range([0, width]);
+
+  var y = d3.scale.linear()
+		.domain([d3.min(data), d3.max(data)])
+		.range([height, 0]);
+
+  var line = d3.svg.line()
+		.interpolate("linear")
+		.x(function(d, i) { return x(i); })
+		.y(function(d, i) { return y(d); });
+
+  var svg = d3.select("#chart").append("p").append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.style("margin-left", -margin.left + "px")
+	.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  svg.append("defs").append("clipPath")
+		.attr("id", "clip")
+	.append("rect")
+		.attr("width", width)
+		.attr("height", height);
+
+  svg.append("g")
+		.attr("class", "y axis")
+		.call(d3.svg.axis().scale(y).ticks(15).orient("left"));
+
+  var path = svg.append("g")
+		.attr("clip-path", "url(#clip)")
+	.append("path")
+		.datum(data)
+		.attr("class", "line")
+		.attr("d", line);
+
+</script>
+	<script type="text/javascript">
+
+			function WebSocketTest() {
+				if ("WebSocket" in window) {
+					// Let us open a web socket
+					var url = 'ws://' + window.location.host + '/websocket';
+					console.log(url);
+					var ws = new WebSocket(url);
+					ws.onopen = function()  {
+						//alert("On Open");
+						// Do call to get data getting n points
+						//"serverName": "localhost",
+						//"dataType": "Disk",
+						//"dataName": "/dev/disk3s2->/",
+						//"dataProperty": "Speed",
+						//"dataValue": "891"
+
+						$.ajax({
+							url: "http://" + window.location.host + "/rest/datapoint?serverName=localhost&dataType=Disk&dataProperty=Speed"
+						}).then(function(jsondata) {
+							//console.log(jsondata);
+							for(var d in jsondata) {
+								data.unshift(jsondata[d].dataValue);
+								//console.log(jsondata[d].dataValue);
+							}
+
+							path.attr("d", line).attr("transform", null)
+							.transition()
+							.attr("transform", "translate(" + x(-1) + ")");
+
+							x = d3.scale.linear()
+									.domain([0, data.length])
+									.range([0, width]);
+	
+							y = d3.scale.linear()
+									.domain([d3.min(data), d3.max(data)])
+									.range([height, 0]);
+	
+							svg.selectAll("g.y.axis").call(d3.svg.axis().scale(y).ticks(5).orient("left"));
+							
+							// loop through data and 
+							// unshift them onto data
+							//$('.greeting-id').append(data.id);
+							//$('.greeting-content').append(data.content);
+						});
+
+
+					};
+
+					ws.onmessage = function (evt) { 
+						if(evt.data == "session opened") return;
+						var msg = JSON.parse(evt.data);
+
+						if(!(msg.dataType == "Disk" && msg.dataProperty == "Speed")) return;
+						
+						data.push(msg.dataValue);
+						while(data.length > n) data.shift();
+
+						path.attr("d", line).attr("transform", null)
+							.transition()
+							.attr("transform", "translate(" + x(-1) + ")");
+
+						x = d3.scale.linear()
+								.domain([0, data.length])
+								.range([0, width]);
+
+						y = d3.scale.linear()
+								.domain([d3.min(data), d3.max(data)])
+								.range([height, 0]);
+
+						svg.selectAll("g.y.axis").call(d3.svg.axis().scale(y).ticks(5).orient("left"));
+					};
+					
+					ws.onclose = function() { 
+						alert("Connection is closed..."); 
+					};
+				} else {
+					alert("WebSocket NOT supported by your Browser!");
+				}
+			}
+		</script>
+		
+<div id="chart_div"><div>
+</body>
+</html>
