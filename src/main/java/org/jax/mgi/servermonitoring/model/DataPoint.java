@@ -6,7 +6,9 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -18,6 +20,7 @@ import com.wordnik.swagger.annotations.ApiModel;
 @Entity
 @XmlRootElement
 @ApiModel
+@Table(indexes = {@Index(name="datapont_dataproperty_id_index", columnList = "dataproperty_id"), @Index(name="datapont_dataname_id_index", columnList="dataname_id"), @Index(name="datapont_datatype_id_index", columnList="datatype_id"), @Index(name="datapont_servername_id_index", columnList="servername_id")})
 public class DataPoint implements Serializable {
 
 	@Id

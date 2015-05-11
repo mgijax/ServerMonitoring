@@ -13,6 +13,8 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 
+import scala.sys.SystemProperties;
+
 @SuppressWarnings("serial")
 @WebServlet(name = "SwaggerJaxrsConfiguration", loadOnStartup = 1)
 public class SwaggerJaxrsConfiguration extends HttpServlet {
@@ -22,9 +24,13 @@ public class SwaggerJaxrsConfiguration extends HttpServlet {
 	public void init(ServletConfig servletConfig) {
 		try {
 			super.init(servletConfig);
+			String apiHostname = System.getProperty("api.hostname");
+			if(apiHostname == null) {
+				System.out.println("Failure to Load API Hostname");
+				return;
+			}
 			SwaggerConfig swaggerConfig = new SwaggerConfig();
-			//swaggerConfig.setBasePath("http://localhost.jax.org/rest");
-			swaggerConfig.setBasePath("http://mgi-testapp3.jax.org:8080/rest");
+			swaggerConfig.setBasePath("http://" + apiHostname + "/rest");
 			swaggerConfig.setApiVersion("1.0.0");
 			swaggerConfig.setApiInfo(apiInfo());
 			ConfigFactory.setConfig(swaggerConfig);

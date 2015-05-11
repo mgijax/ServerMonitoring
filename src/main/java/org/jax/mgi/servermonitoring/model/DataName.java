@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -15,7 +16,7 @@ import com.wordnik.swagger.annotations.ApiModel;
 @Entity
 @XmlRootElement
 @ApiModel
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), indexes={@Index(name="dataname_name_index", columnList="name"), @Index(name="dataname_id_index", columnList="id")})
 public class DataName implements Serializable {
 	
     @Id

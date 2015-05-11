@@ -3,6 +3,7 @@ package org.jax.mgi.servermonitoring.model;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -13,7 +14,7 @@ import com.wordnik.swagger.annotations.ApiModel;
 @Entity
 @XmlRootElement
 @ApiModel
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "property"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "property"), indexes={@Index(name="dataproperty_property_index", columnList="property"), @Index(name="dataproperty_id_index", columnList="id")})
 public class DataProperty {
 
 	@Id

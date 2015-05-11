@@ -44,7 +44,6 @@ public class ServerDataWebsocket {
 	@OnClose
 	public void onClose(final Session session) {
 		try {
-			session.getBasicRemote().sendText("WebSocket Session closed");
 			sessions.remove(session);
 		} catch (Exception e) {
 			e.printStackTrace();
