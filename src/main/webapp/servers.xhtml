@@ -23,30 +23,75 @@
     <ui:define name="content">
         <h1>Welcome to Server Monitor</h1>
 
-        <div>
-            <p>Blah Blah Blah</p>
-            <h3>BLah Blah Blah</h3>
-            Image
-        </div>
-
-        <h2>Servers</h2>
+        <h2>Server List</h2>
         <h:panelGroup rendered="#{empty servers}">
             <em>No Servers to Display.</em>
         </h:panelGroup>
         
-        <ui:repeat var="server" value="#{servers}" rendered="#{not empty servers}" varStatus="status">
-        	<div class="simpletablestyle">
-        		Server Div #{server.name}
-        	</div>
-        </ui:repeat>
+        <h:form>
+			<h:dataTable var="server" value="#{servers}" rendered="#{not empty servers}" styleClass="simpletablestyle">
+	            <h:column>
+	                <f:facet name="header">Id</f:facet>
+	                #{server.id}
+	            </h:column>
+	            <h:column>
+	                <f:facet name="header">Name</f:facet>
+	                <h:commandLink value="#{server.name}" action="#{serverview}" />
+	            </h:column>
+	            <h:column>
+	                <f:facet name="header">Last Updated</f:facet>
+	                <span id="#{server.name}_lastupdated"></span>
+	            </h:column>
+        	</h:dataTable>
+        </h:form>
+        
+        <script type="text/javascript">
+        /* <![CDATA[ */
+			function WebSocketTest() {
+				if ("WebSocket" in window) {
+					var url = 'ws://' + window.location.host + '/serverlastupdate';
+					console.log(url);
+					var ws = new WebSocket(url);
+					
+					ws.onopen = function()  {
+						console.log("Connection Opened");
+					};
 
-    </ui:define>
-    
-    <ui:define name="aside">
-    	<p>This is the side panel.</p>
+					ws.onmessage = function (evt) { 
+						if(evt.data == "session opened") return;
+						var msg = JSON.parse(evt.data);
+						if(msg.length > 1) {
+							for(m in msg) {
+								current = new Date();
+								lastUpdate = new Date(msg[m].lastUpdated * 1);
+								console.log(current.getTime());
+								console.log(lastUpdate.getTime());
+								if(lastUpdate.getTime() < (current.getTime() - 120000)) {
+									document.getElementById(msg[m].serverName + "_lastupdated").innerHTML = '<font color="red">' + lastUpdate + '</font>';
+								} else {
+									document.getElementById(msg[m].serverName + "_lastupdated").innerHTML = lastUpdate;
+								}
+							}
+						} else {
+							document.getElementById(msg.serverName + "_lastupdated").innerHTML = new Date(msg.lastUpdated * 1);
+						}
+					
+					};
+
+					ws.onclose = function (evt) {
+						console.log("Connection Closed");
+					};
+
+				} else {
+					alert("WebSocket NOT supported by your Browser!");
+				}
+			}
+			window.addEventListener("load", WebSocketTest, false);
+		/* ]]> */
+		</script>
     </ui:define>
     
     <ui:define name="footer">
-    	<p>This is the footer.<br /></p>
+    	<p></p>
     </ui:define>
 </ui:composition>

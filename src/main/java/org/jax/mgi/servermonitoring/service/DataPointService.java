@@ -27,18 +27,12 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
 
 import org.jax.mgi.servermonitoring.model.DataName;
-import org.jax.mgi.servermonitoring.model.DataProperty;
-import org.jax.mgi.servermonitoring.model.DataType;
 import org.jax.mgi.servermonitoring.model.DataPoint;
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
+import org.jax.mgi.servermonitoring.model.DataProperty;
+import org.jax.mgi.servermonitoring.model.DataType;
 import org.jax.mgi.servermonitoring.model.ServerName;
 
 // The @Stateless annotation eliminates the need for manual transaction demarcation
@@ -153,6 +147,31 @@ public class DataPointService {
 			ServerName serverName = new ServerName(data.getServerName());
 			em.persist(serverName);
 			return serverName;
+		}
+	}
+
+	public List<ServerName> getServerList() {
+		try {
+			return em.createQuery("select s from ServerName s").getResultList();
+		} catch(NoResultException e) {
+			return null;
+		}
+	}
+
+	public List<DataPoint> getLastUpdates() {
+		//select a, COUNT(p) FROM Artist a JOIN a.paintings p GROUP BY a
+		// select max(datatimestamp), sn.name from datapoint dp, servername sn where dp.servername_id = sn.id group by sn.name
+		try {
+			List<Long> list = em.createQuery("select max(dp.id) from DataPoint dp group by dp.serverName").getResultList();
+			
+			List<DataPoint> dps = em.createQuery("select dp from DataPoint dp where dp.id in (:ids)").setParameter("ids", list).getResultList();
+			
+//			for(Object[] o: list) {
+//				dps.add((DataPoint)o[0]);
+//			}
+			return dps;
+		} catch(NoResultException e) {
+			return null;
 		}
 	}
 }

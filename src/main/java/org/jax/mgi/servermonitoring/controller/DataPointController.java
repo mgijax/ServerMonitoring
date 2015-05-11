@@ -19,7 +19,9 @@ public class DataPointController {
     private DataPointService dataPointService;
     
     @Produces
-    @Named
-    private ServerName servers;
-
+    @Named    
+    private ServerName selectedServername;
+    
+    
+    
 }

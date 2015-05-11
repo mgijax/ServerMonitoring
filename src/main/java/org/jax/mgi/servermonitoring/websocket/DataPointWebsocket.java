@@ -17,7 +17,7 @@ import org.jax.mgi.servermonitoring.model.DataPoint;
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
 
 @ServerEndpoint("/websocket")
-public class ServerDataWebsocket {
+public class DataPointWebsocket {
 	
 	private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
 
