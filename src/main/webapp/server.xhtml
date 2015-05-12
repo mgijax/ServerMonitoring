@@ -83,9 +83,6 @@
 				ws.onopen = function()  {
 					console.log("Connection Opened");
 					ws.send("#{selectedServername.name}");
-					
-					ws.send("localhost");
-
 				};
 
 				ws.onmessage = function (evt) { 
