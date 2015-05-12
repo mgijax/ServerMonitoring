@@ -54,37 +54,42 @@ public class DataPointService {
 		serverDataSrc.fire(serverData);
 	}
 
-	public List<DataPointDTO> listDataPoints(String serverName, String dataType, String dataName, String dataProperty) {
+	public List<DataPointDTO> listDataPoints(DataPointDTO data, int amount) {
 		
 		String query = "select dp from DataPoint dp where";
 		
-		if(serverName != null) {
+		if(data.getServerName() != null && !data.getServerName().equals("")) {
 			query += " dp.serverName.name = :serverName AND";
 		}
-		if(dataType != null) {
+		if(data.getDataType() != null && !data.getDataType().equals("")) {
 			query += " dp.dataType.type = :dataType AND";
 		}
-		if(dataName != null) {
+		if(data.getDataName() != null && !data.getDataName().equals("")) {
 			query += " dp.dataName.name = :dataName AND";
 		}
-		if(dataProperty != null) {
+		if(data.getDataProperty() != null && !data.getDataProperty().equals("")) {
 			query += " dp.dataProperty.property = :dataProperty AND";
 		}
 		query += " 1 = 1";
+		query += " order by dp.dataTimeStamp desc";
 		
 		Query q = em.createQuery(query);
 		
-		if(serverName != null) {
-			q.setParameter("serverName", serverName);
+		if(data.getServerName() != null && !data.getServerName().equals("")) {
+			q.setParameter("serverName", data.getServerName());
 		}
-		if(dataType != null) {
-			q.setParameter("dataType", dataType);
+		if(data.getDataType() != null && !data.getDataType().equals("")) {
+			q.setParameter("dataType", data.getDataType());
 		}
-		if(dataName != null) {
-			q.setParameter("dataName", dataName);
+		if(data.getDataName() != null && !data.getDataName().equals("")) {
+			q.setParameter("dataName", data.getDataName());
 		}
-		if(dataProperty != null) {
-			q.setParameter("dataProperty", dataProperty);
+		if(data.getDataProperty() != null && !data.getDataProperty().equals("")) {
+			q.setParameter("dataProperty", data.getDataProperty());
+		}
+		
+		if(amount > 0) {
+			q.setMaxResults(amount);
 		}
 
 		log.info("Query: " + query);

@@ -1,11 +1,14 @@
 package org.jax.mgi.servermonitoring.model;
 
 import java.io.Serializable;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -22,6 +25,9 @@ public class DataType implements Serializable {
     @GeneratedValue
     private Long id;
 	private String type;
+	
+	@OneToMany(mappedBy="dataType", cascade=CascadeType.ALL, orphanRemoval=true)
+	private List<DataPoint> dataPoints;
 	
 	public DataType() { }
 	

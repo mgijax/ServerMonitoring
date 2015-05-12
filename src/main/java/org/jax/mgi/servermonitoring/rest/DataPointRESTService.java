@@ -13,7 +13,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -21,7 +20,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jax.mgi.servermonitoring.model.DataPoint;
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
 import org.jax.mgi.servermonitoring.service.DataPointService;
 
@@ -44,7 +42,7 @@ public class DataPointRESTService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Create Data Point: Creates a Data Point Entry for the specific collection of data")
-	public Response createServerData(@ApiParam(value = "New member to create", required = true) DataPointDTO data) {
+	public Response createDataPoint(@ApiParam(value = "New member to create", required = true) DataPointDTO data) {
 				
 		Response.ResponseBuilder builder = null;
 		
@@ -64,16 +62,14 @@ public class DataPointRESTService {
 		return builder.build();
 	}
 	
-	@GET
-	@ApiOperation(value = "List Data Points: Gets a list of all the Data Point Entries in the system", notes="These are the notes", response=DataPointDTO.class, responseContainer="List")
+	@POST
+	@Path("/list")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<DataPointDTO> listDataPoints(
-			@ApiParam(name="serverName", value="serverNameValue") @QueryParam("serverName") String serverName,
-			@ApiParam(name="dataType", value="dataTypeValue") @QueryParam("dataType") String dataType,
-			@ApiParam(name="dataName", value="dataNameValue") @QueryParam("dataName") String dataName,
-			@ApiParam(name="dataProperty", value="dataPropertyValue") @QueryParam("dataProperty") String dataProperty
-			) {
-		return dataPointManager.listDataPoints(serverName, dataType, dataName, dataProperty);
+	@ApiOperation(value = "List Data Points: Gets a list of all the Data Point Entries in the system", notes="These are the notes", response=DataPointDTO.class, responseContainer="List")
+	public List<DataPointDTO> listDataPoints(@ApiParam(value = "New member to create", required = true) DataPointDTO data, @ApiParam(value="Amount to return") @QueryParam(value = "amount") int amount) {
+		if(amount == 0) amount = 600;
+		return dataPointManager.listDataPoints(data, amount);
 	}
 	
 	private void validateData(DataPointDTO data) throws ConstraintViolationException, ValidationException {

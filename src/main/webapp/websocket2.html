@@ -57,7 +57,9 @@
 					ws.onopen = function()  {
 
 						$.ajax({
-							url: "http://" + window.location.host + "/rest/datapoint?serverName=localhost&dataType=Disk&dataProperty=Speed"
+							type: "POST",
+							url: "http://" + window.location.host + "/rest/datapoint",
+							data: {"serverName": "localhost", "dataType": "Disk", "dataProperty": "Speed", "dataName": ""}
 						}).then(function(jsondata) {
 							for(var i = 0; i < jsondata.length; i++) {
 								data.addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
