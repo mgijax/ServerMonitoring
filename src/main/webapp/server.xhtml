@@ -1,0 +1,92 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    template="/WEB-INF/templates/default2.xhtml">
+    <ui:define name="content">
+        <h1>#{selectedServername.name}</h1>
+        
+        <ui:repeat var="dataType" value="#{dataTypes}" varStatus="loop1">
+        	<h2>#{dataType.type}</h2>
+        	<ui:repeat var="dataName" value="#{serverNameProducer.getDataNames(dataType)}" varStatus="loop2">
+        		<h3>#{dataName.name}</h3>
+        		<ui:repeat var="dataProperty" value="#{serverNameProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
+        			<div id="#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div" style="width: 825px; height: 280px;"></div>
+        		</ui:repeat>
+        	</ui:repeat>
+        </ui:repeat>
+        
+	<script type="text/javascript">
+		var n = 600;
+		var data = [];
+		var chart = [];
+		var options = [];
+
+		google.load('visualization', '1.1', {packages: ['corechart', 'line']});
+		google.setOnLoadCallback(setupCharts);
+
+		function setupCharts() {
+
+		<ui:repeat var="dataType" value="#{dataTypes}" varStatus="loop1">
+			data["#{dataType.type}"] = [];
+			chart["#{dataType.type}"] = [];
+			options["#{dataType.type}"] = [];
+			<ui:repeat var="dataName" value="#{serverNameProducer.getDataNames(dataType)}" varStatus="loop2">
+				data["#{dataType.type}"]["#{dataName.name}"] = [];
+				chart["#{dataType.type}"]["#{dataName.name}"] = [];
+				options["#{dataType.type}"]["#{dataName.name}"] = [];
+				<ui:repeat var="dataProperty" value="#{serverNameProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
+					data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"] = new google.visualization.DataTable();
+					data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"].addColumn("datetime", "Time");
+					data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"].addColumn("number", "#{dataName.name}");
+					options["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"] = { hAxis: { title: 'Time' }, vAxis: { title: '#{dataProperty.property}' } };
+					chart["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"] = new google.visualization.LineChart(document.getElementById("#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div"));
+					chart["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"].draw(data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"], options);
+				</ui:repeat>
+			</ui:repeat>
+		</ui:repeat>
+
+		}
+		
+	</script>
+    
+        <script type="text/javascript">
+        /* <![CDATA[ */
+			function WebSocketTest() {
+				if ("WebSocket" in window) {
+					var url = 'ws://' + window.location.host + '/websocket';
+					console.log(url);
+					var ws = new WebSocket(url);
+					
+					ws.onopen = function()  {
+						console.log("Connection Opened");
+						ws.send("#{selectedServername.name}");
+					};
+
+					ws.onmessage = function (evt) { 
+						if(evt.data == "session opened") return;
+						var msg = JSON.parse(evt.data);
+						//console.log(msg);
+						data[msg.dataType][msg.dataName][msg.dataProperty].addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
+						while(data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows() > n) data[msg.dataType][msg.dataName][msg.dataProperty].removeRow(0);
+						chart[msg.dataType][msg.dataName][msg.dataProperty].draw(data[msg.dataType][msg.dataName][msg.dataProperty], options[msg.dataType][msg.dataName][msg.dataProperty]);
+					};
+
+					ws.onclose = function (evt) {
+						console.log("Connection Closed");
+					};
+
+				} else {
+					alert("WebSocket NOT supported by your Browser!");
+				}
+			}
+			window.addEventListener("load", WebSocketTest, false);
+		/* ]]> */
+		</script>
+        
+    </ui:define>
+    
+    <ui:define name="footer">
+    	<p></p>
+    </ui:define>
+</ui:composition>

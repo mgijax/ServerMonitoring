@@ -6,7 +6,7 @@
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
-<Script type="text/javascript">
+<script type="text/javascript">
 	var n = 600;
 	var data;
 	var chart;
@@ -14,7 +14,6 @@
 	
 	google.load('visualization', '1.1', {packages: ['corechart', 'line']});
 	google.setOnLoadCallback(drawBasic);
-	
 		
 	function drawBasic() {
 		data = new google.visualization.DataTable();
@@ -31,7 +30,7 @@
 		};
 		
 		chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-		//chart.draw(data, options);				
+		//chart.draw(data, options);
 	}
 </Script>
 
@@ -48,7 +47,7 @@
 
 
 	<script type="text/javascript">
-
+	/* <![CDATA[ */
 			function WebSocketTest() {
 				if ("WebSocket" in window) {
 					// Let us open a web socket
@@ -90,7 +89,7 @@
 					alert("WebSocket NOT supported by your Browser!");
 				}
 			}
-			
+		/* ]]> */
 		</script>
 </body>
 </html>

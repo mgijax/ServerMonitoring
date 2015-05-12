@@ -15,12 +15,10 @@ public class DataPointController {
     @Inject
     private FacesContext facesContext;
 
-    @Inject
-    private DataPointService dataPointService;
+
+
     
-    @Produces
-    @Named    
-    private ServerName selectedServername;
+
     
     
     

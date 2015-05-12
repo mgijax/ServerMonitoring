@@ -174,4 +174,23 @@ public class DataPointService {
 			return null;
 		}
 	}
+
+	public List<DataType> getDataTypes(ServerName selectedServername) {
+		return em.createQuery("select distinct dp.dataType from DataPoint dp where dp.serverName = :serverName").setParameter("serverName", selectedServername).getResultList();
+	}
+
+	public List<DataName> getDataNames(ServerName selectedServername, DataType dataType) {
+		return em.createQuery("select distinct dp.dataName from DataPoint dp where dp.serverName = :serverName and dp.dataType = :dataType")
+			.setParameter("serverName", selectedServername)
+			.setParameter("dataType", dataType)
+			.getResultList();
+	}
+
+	public List<DataProperty> getDataProperties(ServerName selectedServername, DataType dataType, DataName dataName) {
+		return em.createQuery("select distinct dp.dataProperty from DataPoint dp where dp.serverName = :serverName and dp.dataType = :dataType and dp.dataName = :dataName")
+				.setParameter("serverName", selectedServername)
+				.setParameter("dataType", dataType)
+				.setParameter("dataName", dataName)
+				.getResultList();
+	}
 }
