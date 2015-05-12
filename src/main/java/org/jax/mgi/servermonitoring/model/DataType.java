@@ -47,5 +47,8 @@ public class DataType implements Serializable {
 		this.type = type;
 	}
 	
+	public String toString() {
+		return "DataType[Id: " + id + " Type: " + type + "]";
+	}
 
 }

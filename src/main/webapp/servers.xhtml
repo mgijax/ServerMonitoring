@@ -66,8 +66,6 @@
 							for(m in msg) {
 								current = new Date();
 								lastUpdate = new Date(msg[m].lastUpdated * 1);
-								console.log(current.getTime());
-								console.log(lastUpdate.getTime());
 								if(lastUpdate.getTime() < (current.getTime() - 120000)) {
 									document.getElementById(msg[m].serverName + "_lastupdated").innerHTML = '<font color="red">' + lastUpdate + '</font>';
 								} else {

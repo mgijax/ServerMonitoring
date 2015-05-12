@@ -17,7 +17,8 @@
         </ui:repeat>
         
 	<script type="text/javascript">
-		var n = 600;
+
+		var n = 400;
 		var data = [];
 		var chart = [];
 		var options = [];
@@ -36,53 +37,80 @@
 				chart["#{dataType.type}"]["#{dataName.name}"] = [];
 				options["#{dataType.type}"]["#{dataName.name}"] = [];
 				<ui:repeat var="dataProperty" value="#{serverNameProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
-					data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"] = new google.visualization.DataTable();
-					data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"].addColumn("datetime", "Time");
-					data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"].addColumn("number", "#{dataName.name}");
-					options["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"] = { hAxis: { title: 'Time' }, vAxis: { title: '#{dataProperty.property}' } };
-					chart["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"] = new google.visualization.LineChart(document.getElementById("#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div"));
-					chart["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"].draw(data["#{dataType.type}"]["#{dataName.name}"]["#{dataProperty.property}"], options);
+					updateChartDataOptions("#{dataType.type}", "#{dataName.name}", "#{dataProperty.property}", #{(loop1.index * 10000) + (loop2.index * 100) + loop3.index});
 				</ui:repeat>
 			</ui:repeat>
 		</ui:repeat>
 
 		}
-		
 	</script>
-    
-        <script type="text/javascript">
-        /* <![CDATA[ */
-			function WebSocketTest() {
-				if ("WebSocket" in window) {
-					var url = 'ws://' + window.location.host + '/websocket';
-					console.log(url);
-					var ws = new WebSocket(url);
+	
+	<script type="text/javascript">
+	/* <![CDATA[ */
+
+		function updateChartDataOptions(type, name, property, id) {
+
+
+			data[type][name][property] = new google.visualization.DataTable();
+			data[type][name][property].addColumn("datetime", "Time");
+			data[type][name][property].addColumn("number", name);
+			options[type][name][property] = { hAxis: { title: 'Time' }, vAxis: { title: property} };
+			chart[type][name][property] = new google.visualization.LineChart(document.getElementById(id + "_div"));
+			chart[type][name][property].draw(data[type][name][property], options[type][name][property]);
+
+			$.ajax({
+				type: "POST",
+				url: "http://" + window.location.host + "/rest/datapoint/list?amount=" + n,
+				dataType: "json",
+				contentType: "application/json",
+				success: function(jsondata) {
+					jsondata.reverse();
+					for(var i = 0; i < jsondata.length; i++) {
+						data[type][name][property].addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
+					}
+					chart[type][name][property].draw(data[type][name][property], options[type][name][property]);
+				},
+				data: '{"serverName": "#{selectedServername.name}", "dataName": "' + name + '", "dataType": "' + type + '", "dataProperty": "' + property + '"}'
+			});
+		}
+
+		function WebSocketTest() {
+			if ("WebSocket" in window) {
+				var url = 'ws://' + window.location.host + '/websocket';
+				console.log(url);
+				var ws = new WebSocket(url);
+				
+				ws.onopen = function()  {
+					console.log("Connection Opened");
+					ws.send("#{selectedServername.name}");
 					
-					ws.onopen = function()  {
-						console.log("Connection Opened");
-						ws.send("#{selectedServername.name}");
-					};
+					ws.send("localhost");
 
-					ws.onmessage = function (evt) { 
-						if(evt.data == "session opened") return;
-						var msg = JSON.parse(evt.data);
-						//console.log(msg);
-						data[msg.dataType][msg.dataName][msg.dataProperty].addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
-						while(data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows() > n) data[msg.dataType][msg.dataName][msg.dataProperty].removeRow(0);
-						chart[msg.dataType][msg.dataName][msg.dataProperty].draw(data[msg.dataType][msg.dataName][msg.dataProperty], options[msg.dataType][msg.dataName][msg.dataProperty]);
-					};
+				};
 
-					ws.onclose = function (evt) {
-						console.log("Connection Closed");
-					};
+				ws.onmessage = function (evt) { 
+					if(evt.data == "session opened") return;
+					var msg = JSON.parse(evt.data);
+					//console.log(msg);
+					data[msg.dataType][msg.dataName][msg.dataProperty].addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
+					while(data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows() > n) data[msg.dataType][msg.dataName][msg.dataProperty].removeRow(0);
+					chart[msg.dataType][msg.dataName][msg.dataProperty].draw(data[msg.dataType][msg.dataName][msg.dataProperty], options[msg.dataType][msg.dataName][msg.dataProperty]);
+				};
 
-				} else {
-					alert("WebSocket NOT supported by your Browser!");
-				}
+				ws.onclose = function (evt) {
+					console.log("Connection Closed");
+				};
+
+			} else {
+				alert("WebSocket NOT supported by your Browser!");
 			}
-			window.addEventListener("load", WebSocketTest, false);
-		/* ]]> */
-		</script>
+		}
+		window.addEventListener("load", WebSocketTest, false);
+	/* ]]> */
+	</script>
+	
+	
+	
         
     </ui:define>
     

@@ -52,4 +52,7 @@ public class DataName implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public String toString() {
+		return "DataName[Id: " + id + " Name: " + name + "]";
+	}
 }

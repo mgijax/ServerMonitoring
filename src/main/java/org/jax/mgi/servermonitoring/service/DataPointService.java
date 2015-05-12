@@ -47,6 +47,8 @@ public class DataPointService {
 
 	@Inject
 	private Event<DataPoint> serverDataSrc;
+	
+	private boolean debug = false;
 
 	public void createDataPoint(DataPointDTO data) throws Exception {
 		DataPoint serverData = getDataPoint(data);
@@ -92,7 +94,7 @@ public class DataPointService {
 			q.setMaxResults(amount);
 		}
 
-		log.info("Query: " + query);
+		if(debug) log.info("Query: " + query);
 		
 		List<DataPoint> list = q.getResultList();
 		
@@ -113,6 +115,7 @@ public class DataPointService {
 
 	private DataName getDataName(DataPointDTO data) {
 		try {
+			if(debug) log.info("Query: " + "select dn from DataName dn where name = :name");
 			return (DataName)em.createQuery("select dn from DataName dn where name = :name")
 				.setParameter("name", data.getDataName()).getSingleResult();
 		} catch(NoResultException e) {
@@ -124,6 +127,7 @@ public class DataPointService {
 
 	private DataType getDataType(DataPointDTO data) {
 		try {
+			if(debug) log.info("Query: " + "select dt from DataType dt where type = :type");
 			return (DataType)em.createQuery("select dt from DataType dt where type = :type")
 					.setParameter("type", data.getDataType()).getSingleResult();
 		} catch(NoResultException e) {
@@ -135,6 +139,7 @@ public class DataPointService {
 	
 	private DataProperty getDataProperty(DataPointDTO data) {
 		try {
+			if(debug) log.info("Query: " + "select dp from DataProperty dp where property = :property");
 			return (DataProperty)em.createQuery("select dp from DataProperty dp where property = :property")
 					.setParameter("property", data.getDataProperty()).getSingleResult();
 		} catch(NoResultException e) {
@@ -146,6 +151,7 @@ public class DataPointService {
 
 	private ServerName getServerName(DataPointDTO data) {
 		try {
+			if(debug) log.info("Query: " + "select sn from ServerName sn where name = :name");
 			return (ServerName)em.createQuery("select sn from ServerName sn where name = :name")
 					.setParameter("name", data.getServerName()).getSingleResult();
 		} catch(NoResultException e) {
@@ -157,6 +163,7 @@ public class DataPointService {
 
 	public List<ServerName> getServerList() {
 		try {
+			log.info("Query: " + "select s from ServerName s");
 			return em.createQuery("select s from ServerName s").getResultList();
 		} catch(NoResultException e) {
 			return null;
@@ -167,8 +174,10 @@ public class DataPointService {
 		//select a, COUNT(p) FROM Artist a JOIN a.paintings p GROUP BY a
 		// select max(datatimestamp), sn.name from datapoint dp, servername sn where dp.servername_id = sn.id group by sn.name
 		try {
+			if(debug) log.info("Query: " + "select max(dp.id) from DataPoint dp group by dp.serverName");
 			List<Long> list = em.createQuery("select max(dp.id) from DataPoint dp group by dp.serverName").getResultList();
 			
+			if(debug) log.info("Query: " + "select dp from DataPoint dp where dp.id in (:ids)");
 			List<DataPoint> dps = em.createQuery("select dp from DataPoint dp where dp.id in (:ids)").setParameter("ids", list).getResultList();
 			
 //			for(Object[] o: list) {
@@ -181,10 +190,12 @@ public class DataPointService {
 	}
 
 	public List<DataType> getDataTypes(ServerName selectedServername) {
+		if(debug) log.info("Query: " + "select distinct dp.dataType from DataPoint dp where dp.serverName = :serverName");
 		return em.createQuery("select distinct dp.dataType from DataPoint dp where dp.serverName = :serverName").setParameter("serverName", selectedServername).getResultList();
 	}
 
 	public List<DataName> getDataNames(ServerName selectedServername, DataType dataType) {
+		if(debug) log.info("Query: " + "select distinct dp.dataName from DataPoint dp where dp.serverName = :serverName and dp.dataType = :dataType");
 		return em.createQuery("select distinct dp.dataName from DataPoint dp where dp.serverName = :serverName and dp.dataType = :dataType")
 			.setParameter("serverName", selectedServername)
 			.setParameter("dataType", dataType)
@@ -192,10 +203,13 @@ public class DataPointService {
 	}
 
 	public List<DataProperty> getDataProperties(ServerName selectedServername, DataType dataType, DataName dataName) {
+		if(debug) log.info("Query: " + "select distinct dp.dataProperty from DataPoint dp where dp.serverName = :serverName and dp.dataType = :dataType and dp.dataName = :dataName");
 		return em.createQuery("select distinct dp.dataProperty from DataPoint dp where dp.serverName = :serverName and dp.dataType = :dataType and dp.dataName = :dataName")
 				.setParameter("serverName", selectedServername)
 				.setParameter("dataType", dataType)
 				.setParameter("dataName", dataName)
 				.getResultList();
 	}
+	
+	
 }

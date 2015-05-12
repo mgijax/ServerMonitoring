@@ -52,5 +52,7 @@ public class DataProperty implements Serializable {
 	public void setProperty(String property) {
 		this.property = property;
 	}
-	
+	public String toString() {
+		return "DataProperty[Id: " + id + " Property: " + property + "]";
+	}
 }

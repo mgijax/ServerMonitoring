@@ -44,8 +44,6 @@
 
 	<div id="chart_div"></div>
 
-
-
 	<script type="text/javascript">
 	/* <![CDATA[ */
 			function WebSocketTest() {
@@ -55,20 +53,22 @@
 					console.log(url);
 					var ws = new WebSocket(url);
 					ws.onopen = function()  {
-
+						ws.send("localhost");
 						$.ajax({
 							type: "POST",
-							url: "http://" + window.location.host + "/rest/datapoint",
-							data: {"serverName": "localhost", "dataType": "Disk", "dataProperty": "Speed", "dataName": ""}
-						}).then(function(jsondata) {
-							for(var i = 0; i < jsondata.length; i++) {
-								data.addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
-							}
-							while(data.getNumberOfRows() > n) data.removeRow(0);
-							chart.draw(data, options);
+							url: "http://" + window.location.host + "/rest/datapoint/list?amount=" + n,
+							dataType: "json",
+							contentType: "application/json",
+							success: function(jsondata) {
+								jsondata.reverse();
+								for(var i = 0; i < jsondata.length; i++) {
+									data.addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
+								}
+								while(data.getNumberOfRows() > n) data.removeRow(0);
+								chart.draw(data, options);
+							},
+							data: '{"serverName": "localhost", "dataName": "/dev/disk0s2->/", "dataType": "Disk", "dataProperty": "Speed"}'
 						});
-
-
 					};
 
 					ws.onmessage = function (evt) { 
