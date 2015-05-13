@@ -11,14 +11,14 @@
         	<ui:repeat var="dataName" value="#{serverNameProducer.getDataNames(dataType)}" varStatus="loop2">
         		<h3>#{dataName.name}</h3>
         		<ui:repeat var="dataProperty" value="#{serverNameProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
-        			<div id="#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div" style="width: 825px; height: 280px;"></div>
+        			<div id="#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div" style="width: 980px; height: 280px;"></div>
         		</ui:repeat>
         	</ui:repeat>
         </ui:repeat>
         
 	<script type="text/javascript">
 
-		var n = 400;
+		var n = 600;
 		var data = [];
 		var chart = [];
 		var options = [];
