@@ -56,7 +56,7 @@ public class DataPointWebsocket {
 		try {
 			for (Session s : sessions) {
 				if(sessionMap.containsKey(s.getId())) {
-					if(data.getServerName().getName().equals(sessionMap.get(s.getId())) || sessionMap.get(s.getId()).equals("all")) {
+					if(data.getDataSensor().getServerName().getName().equals(sessionMap.get(s.getId())) || sessionMap.get(s.getId()).equals("all")) {
 						DataPointDTO dto = new DataPointDTO(data);
 						s.getBasicRemote().sendText(dto.toJSON());
 					}

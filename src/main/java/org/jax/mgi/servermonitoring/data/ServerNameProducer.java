@@ -1,6 +1,5 @@
 package org.jax.mgi.servermonitoring.data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,9 +24,9 @@ public class ServerNameProducer {
 
 	private List<ServerName> servers;
 	
-	private HashMap<String, List<DataType>> typeMap = new HashMap<String, List<DataType>>();
-	private HashMap<String, List<DataName>> nameMap = new HashMap<String, List<DataName>>();
-	private HashMap<String, List<DataProperty>> propertyMap = new HashMap<String, List<DataProperty>>();
+	private HashMap<String, List<DataType>> dataTypeMap = new HashMap<String, List<DataType>>();
+	private HashMap<String, List<DataName>> dataNameMap = new HashMap<String, List<DataName>>();
+	private HashMap<String, List<DataProperty>> dataPropMap = new HashMap<String, List<DataProperty>>();
 	
 	@Produces
 	@Named
@@ -53,59 +52,27 @@ public class ServerNameProducer {
 	@Produces
 	@Named
 	public List<DataType> getDataTypes() {
-		//List<DataType> types = getDataTypes(selectedServername);
-		//if(types.isEmpty()) {
-			List<DataType> dataTypes = dataPointService.getDataTypes(selectedServername);
-		//	types.addAll(dataTypes);
-			return dataTypes;
-		//}
-		//return types;
+		if(!dataTypeMap.containsKey(selectedServername.getName())) {
+			dataTypeMap.put(selectedServername.getName(), dataPointService.getDataTypes(selectedServername));
+		}
+		return dataTypeMap.get(selectedServername.getName());
 	}
 
 	@Produces
 	@Named
 	public List<DataName> getDataNames(DataType dataType) {
-		//List<DataName> names = getDataNames(selectedServername, dataType);
-		//if(names.isEmpty()) {
-			List<DataName> dataNames = dataPointService.getDataNames(selectedServername, dataType);
-		//	names.addAll(dataNames);
-			return dataNames;
-		//}
-		//return names;
+		if(!dataNameMap.containsKey(selectedServername.getName() + "::" + dataType.getType())) {
+			dataNameMap.put(selectedServername.getName() + "::" + dataType.getType(), dataPointService.getDataNames(selectedServername, dataType));
+		}
+		return dataNameMap.get(selectedServername.getName() + "::" + dataType.getType());
 	}
 
 	@Produces
 	@Named
 	public List<DataProperty> getDataProperties(DataType dataType, DataName dataName) {
-		//List<DataProperty> properties = getDataProperties(selectedServername, dataType, dataName);
-		//if(properties.isEmpty()) {
-			List<DataProperty> dataProperties = dataPointService.getDataProperties(selectedServername, dataType, dataName);
-		//	properties.addAll(dataProperties);
-			return dataProperties;
-		//}
-		//return properties;
-	}
-	
-	
-	private List<DataProperty> getDataProperties(ServerName selectedServername, DataType dataType, DataName dataName) {
-		if(!propertyMap.containsKey(selectedServername.getName() + "::" + dataType.getType() + "::" + dataName.getName())) {
-			propertyMap.put(selectedServername.getName() + "::" + dataType.getType() + "::" + dataName.getName(), new ArrayList<DataProperty>());
+		if(!dataPropMap.containsKey(selectedServername.getName() + "::" + dataType.getType() + "::" + dataName.getName())) {
+			dataPropMap.put(selectedServername.getName() + "::" + dataType.getType() + "::" + dataName.getName(), dataPointService.getDataProperties(selectedServername, dataType, dataName));
 		}
-		return propertyMap.get(selectedServername.getName() + "::" + dataType.getType() + "::" + dataName.getName());
+		return dataPropMap.get(selectedServername.getName() + "::" + dataType.getType() + "::" + dataName.getName());
 	}
-
-	private List<DataName> getDataNames(ServerName selectedServername, DataType dataType) {
-		if(!nameMap.containsKey(selectedServername.getName() + "::" + dataType.getType())) {
-			nameMap.put(selectedServername.getName() + "::" + dataType.getType(), new ArrayList<DataName>());
-		}
-		return nameMap.get(selectedServername.getName() + "::" + dataType.getType());
-	}
-	
-	private List<DataType> getDataTypes(ServerName selectedServername) {
-		if(!typeMap.containsKey(selectedServername.getName())) {
-			typeMap.put(selectedServername.getName(), new ArrayList<DataType>());
-		}
-		return typeMap.get(selectedServername.getName());
-	}
-
 }

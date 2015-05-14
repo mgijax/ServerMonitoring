@@ -20,7 +20,10 @@ import com.wordnik.swagger.annotations.ApiModel;
 @Entity
 @XmlRootElement
 @ApiModel
-@Table(indexes = {@Index(name="datapont_dataproperty_id_index", columnList = "dataproperty_id"), @Index(name="datapont_dataname_id_index", columnList="dataname_id"), @Index(name="datapont_datatype_id_index", columnList="datatype_id"), @Index(name="datapont_servername_id_index", columnList="servername_id")})
+@Table(indexes = {
+		@Index(name="datapont_datasensor_id_index", columnList="datasensor_id"),
+		@Index(name="datapont_datatimestamp_index", columnList="datatimestamp"),
+})
 public class DataPoint implements Serializable {
 
 	@Id
@@ -28,13 +31,7 @@ public class DataPoint implements Serializable {
 	private Long id;
 
 	@ManyToOne
-	private ServerName serverName;
-	@ManyToOne
-	private DataType dataType;
-	@ManyToOne
-	private DataName dataName;
-	@ManyToOne
-	private DataProperty dataProperty;
+	private DataSensor dataSensor;
 
 	@NotNull
 	@NotEmpty
@@ -42,12 +39,9 @@ public class DataPoint implements Serializable {
 	private Date dataTimeStamp;
 
 	public DataPoint() { }
-
-	public DataPoint(ServerName serverName, DataType dataType, DataName dataName, DataProperty dataProperty, String dataValue, Date dataTimeStamp) {
-		this.serverName = serverName;
-		this.dataType = dataType;
-		this.dataName = dataName;
-		this.dataProperty = dataProperty;
+	
+	public DataPoint(DataSensor dataSensor, String dataValue, Date dataTimeStamp) {
+		this.dataSensor = dataSensor;
 		this.dataValue = dataValue;
 		this.dataTimeStamp = dataTimeStamp;
 	}
@@ -58,29 +52,11 @@ public class DataPoint implements Serializable {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public ServerName getServerName() {
-		return serverName;
+	public DataSensor getDataSensor() {
+		return dataSensor;
 	}
-	public void setServerName(ServerName serverName) {
-		this.serverName = serverName;
-	}
-	public DataType getDataType() {
-		return dataType;
-	}
-	public void setDataType(DataType dataType) {
-		this.dataType = dataType;
-	}
-	public DataName getDataName() {
-		return dataName;
-	}
-	public void setDataName(DataName dataName) {
-		this.dataName = dataName;
-	}
-	public DataProperty getDataProperty() {
-		return dataProperty;
-	}
-	public void setDataProperty(DataProperty dataProperty) {
-		this.dataProperty = dataProperty;
+	public void setDataSensor(DataSensor dataSensor) {
+		this.dataSensor = dataSensor;
 	}
 	public String getDataValue() {
 		return dataValue;

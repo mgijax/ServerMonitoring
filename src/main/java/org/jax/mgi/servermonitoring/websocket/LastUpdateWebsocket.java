@@ -36,7 +36,7 @@ public class LastUpdateWebsocket {
 			StringBuffer b = new StringBuffer();
 			b.append("[");
 			for(DataPoint dp: list) {
-				b.append("{\"serverName\": \"" + dp.getServerName().getName() + "\", \"lastUpdated\": \"" + dp.getDataTimeStamp().getTime() + "\"},");
+				b.append("{\"serverName\": \"" + dp.getDataSensor().getServerName().getName() + "\", \"lastUpdated\": \"" + dp.getDataTimeStamp().getTime() + "\"},");
 			}
 			b.deleteCharAt(b.length() - 1);
 			b.append("]");
@@ -68,7 +68,7 @@ public class LastUpdateWebsocket {
 	public void onServerDataEvent(@Observes final DataPoint data) {
 		try {
 			for (Session s : sessions) {
-				s.getBasicRemote().sendText("{\"serverName\": \"" + data.getServerName().getName() + "\", \"lastUpdated\": \"" + data.getDataTimeStamp().getTime() + "\"}");
+				s.getBasicRemote().sendText("{\"serverName\": \"" + data.getDataSensor().getServerName().getName() + "\", \"lastUpdated\": \"" + data.getDataTimeStamp().getTime() + "\"}");
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

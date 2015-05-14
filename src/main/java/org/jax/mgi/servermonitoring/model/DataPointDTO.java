@@ -22,10 +22,10 @@ public class DataPointDTO implements Serializable {
 	public DataPointDTO() { }
 
     public DataPointDTO(DataPoint data) {
-		this.serverName = data.getServerName().getName();
-		this.dataType = data.getDataType().getType();
-		this.dataName = data.getDataName().getName();
-		this.dataProperty = data.getDataProperty().getProperty();
+		this.serverName = data.getDataSensor().getServerName().getName();
+		this.dataType = data.getDataSensor().getDataType().getType();
+		this.dataName = data.getDataSensor().getDataName().getName();
+		this.dataProperty = data.getDataSensor().getDataProperty().getProperty();
 		this.dataValue = data.getDataValue();
 		this.dataTimeStamp = data.getDataTimeStamp();
 	}
