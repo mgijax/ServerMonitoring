@@ -178,8 +178,8 @@ public class DataPointService {
 
 	public List<ServerName> getServerList() {
 		try {
-			if(debug) log.info("getServerList: " + "select s from ServerName s");
-			return em.createQuery("select s from ServerName s").getResultList();
+			if(debug) log.info("getServerList: " + "select s from ServerName s order by s.name");
+			return em.createQuery("select s from ServerName s order by s.name").getResultList();
 		} catch(NoResultException e) {
 			return null;
 		}

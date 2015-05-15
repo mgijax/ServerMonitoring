@@ -92,7 +92,9 @@
 					if(evt.data == "session opened") return;
 					var msg = JSON.parse(evt.data);
 					//console.log(msg);
-					data[msg.dataType][msg.dataName][msg.dataProperty].addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
+					if(data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows() > 0) {
+						data[msg.dataType][msg.dataName][msg.dataProperty].addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
+					}
 					while(data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows() > n) data[msg.dataType][msg.dataName][msg.dataProperty].removeRow(0);
 					chart[msg.dataType][msg.dataName][msg.dataProperty].draw(data[msg.dataType][msg.dataName][msg.dataProperty], options[msg.dataType][msg.dataName][msg.dataProperty]);
 				};

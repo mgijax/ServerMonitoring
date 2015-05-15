@@ -28,7 +28,6 @@
 			<em>No Servers to Display.</em>
 		</h:panelGroup>
 
-
 		<h:dataTable var="server" value="#{servers}"
 			rendered="#{not empty servers}" styleClass="simpletablestyle">
 			<h:column>
@@ -46,38 +45,86 @@
 				<f:facet name="header">Last Updated</f:facet>
 				<span id="#{server.name}_lastupdated"></span>
 			</h:column>
+			<h:column>
+				<f:facet name="header">System Load</f:facet>
+				<div id="#{server.name}_graph_div" style="width: 800px; height: 60px;"></div>
+				
+			</h:column>
 		</h:dataTable>
+
+		<script type="text/javascript">
+	
+			var n = 720;
+			var data = [];
+			var chart = [];
+			var options = [];
+	
+			google.load('visualization', '1.1', {packages: ['corechart', 'line']});
+			google.setOnLoadCallback(setupCharts);
+
+			function setupCharts() {
+				<ui:repeat var="serverName" value="#{servers}">
+					updateChartDataOptions("#{serverName.name}", "System", "Load", "5min");
+				</ui:repeat>
+			}
+		</script>
+	
+			
 
 
 		<script type="text/javascript">
         /* <![CDATA[ */
+        
+	        function updateChartDataOptions(servername, type, name, property) {
+	
+				data[servername] = new google.visualization.DataTable();
+				data[servername].addColumn("datetime", "Time");
+				data[servername].addColumn("number", name);
+				options[servername] = { hAxis: { title: 'Time' }, vAxis: { title: property} };
+				chart[servername] = new google.visualization.LineChart(document.getElementById(servername + "_graph_div"));
+				chart[servername].draw(data[servername], options[servername]);
+	
+				$.ajax({
+					type: "POST",
+					url: "http://" + window.location.host + "/rest/datapoint/list?amount=" + n,
+					dataType: "json",
+					contentType: "application/json",
+					success: function(jsondata) {
+						jsondata.reverse();
+						for(var i = 0; i < jsondata.length; i++) {
+							data[servername].addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
+						}
+						chart[servername].draw(data[servername], options[servername]);
+					},
+					data: '{"serverName": "' + servername + '", "dataName": "' + name + '", "dataType": "' + type + '", "dataProperty": "' + property + '"}'
+				});
+			}
+
+
 			function WebSocketTest() {
 				if ("WebSocket" in window) {
-					var url = 'ws://' + window.location.host + '/serverlastupdate';
+					var url = 'ws://' + window.location.host + '/websocket';
 					console.log(url);
 					var ws = new WebSocket(url);
 					
 					ws.onopen = function()  {
 						console.log("Connection Opened");
+						ws.send("all");
 					};
 
 					ws.onmessage = function (evt) { 
 						if(evt.data == "session opened") return;
 						var msg = JSON.parse(evt.data);
-						if(msg.length > 1) {
-							for(m in msg) {
-								current = new Date();
-								lastUpdate = new Date(msg[m].lastUpdated * 1);
-								if(lastUpdate.getTime() < (current.getTime() - 120000)) {
-									document.getElementById(msg[m].serverName + "_lastupdated").innerHTML = '<font color="red">' + lastUpdate + '</font>';
-								} else {
-									document.getElementById(msg[m].serverName + "_lastupdated").innerHTML = lastUpdate;
-								}
+						//console.log(msg);
+						
+						document.getElementById(msg.serverName + "_lastupdated").innerHTML = new Date(msg.dataTimeStamp * 1);
+						if(msg.dataType == 'System' && msg.dataName == 'Load' && msg.dataProperty == '5min') {
+							if(data[msg.serverName].getNumberOfRows() > 0) {
+								data[msg.serverName].addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
 							}
-						} else {
-							document.getElementById(msg.serverName + "_lastupdated").innerHTML = new Date(msg.lastUpdated * 1);
+							while(data[msg.serverName].getNumberOfRows() > n) data[msg.serverName].removeRow(0);
+							chart[msg.serverName].draw(data[msg.serverName], options[msg.serverName]);
 						}
-					
 					};
 
 					ws.onclose = function (evt) {
