@@ -16,38 +16,40 @@
     limitations under the License.
 -->
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    template="/WEB-INF/templates/default2.xhtml">
-    <ui:define name="content">
-        <h1>Welcome to Server Monitor</h1>
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	template="/WEB-INF/templates/default2.xhtml">
+	<ui:define name="content">
+		<h1>Welcome to Server Monitor</h1>
 
-        <h2>Server List</h2>
-        <h:panelGroup rendered="#{empty servers}">
-            <em>No Servers to Display.</em>
-        </h:panelGroup>
-        
-        <h:form>
-			<h:dataTable var="server" value="#{servers}" rendered="#{not empty servers}" styleClass="simpletablestyle">
-	            <h:column>
-	                <f:facet name="header">Id</f:facet>
-	                #{server.id}
-	            </h:column>
-	            <h:column>
-	                <f:facet name="header">Name</f:facet>
-	                <h:commandLink value="#{server.name}" action="#{serverNameProducer.goToServer(server)}">
-	                	<f:param name="server" value="#{server.name}" />
-					</h:commandLink>
-	            </h:column>
-	            <h:column>
-	                <f:facet name="header">Last Updated</f:facet>
-	                <span id="#{server.name}_lastupdated"></span>
-	            </h:column>
-        	</h:dataTable>
-        </h:form>
-        
-        <script type="text/javascript">
+		<h2>Server List</h2>
+		<h:panelGroup rendered="#{empty servers}">
+			<em>No Servers to Display.</em>
+		</h:panelGroup>
+
+
+		<h:dataTable var="server" value="#{servers}"
+			rendered="#{not empty servers}" styleClass="simpletablestyle">
+			<h:column>
+				<f:facet name="header">Id</f:facet>
+                #{server.id}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Name</f:facet>
+				<h:outputLink value="server.jsf">
+					<f:param name="serverName" value="#{server.name}" />
+					<h:outputText value="#{server.name}" />
+				</h:outputLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Last Updated</f:facet>
+				<span id="#{server.name}_lastupdated"></span>
+			</h:column>
+		</h:dataTable>
+
+
+		<script type="text/javascript">
         /* <![CDATA[ */
 			function WebSocketTest() {
 				if ("WebSocket" in window) {
@@ -89,9 +91,9 @@
 			window.addEventListener("load", WebSocketTest, false);
 		/* ]]> */
 		</script>
-    </ui:define>
-    
-    <ui:define name="footer">
-    	<p></p>
-    </ui:define>
+	</ui:define>
+
+	<ui:define name="footer">
+		<p></p>
+	</ui:define>
 </ui:composition>

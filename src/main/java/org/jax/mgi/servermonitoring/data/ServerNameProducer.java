@@ -51,12 +51,9 @@ public class ServerNameProducer {
 	@PostConstruct
 	public void getServerList() {
 		String serverName = getParam("serverName");
-		
-		System.out.println("Post Construct: " + serverName);
 		if(serverName != null && !serverName.equals("")) {
-			selectedServername = dataPointService.getServer(serverName);
+			selectedServername = dataPointService.getServerName(serverName);
 		}
-
 		servers = dataPointService.getServerList();
 	}
 

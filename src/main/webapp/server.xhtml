@@ -4,6 +4,9 @@
     xmlns:h="http://java.sun.com/jsf/html"
     template="/WEB-INF/templates/default2.xhtml">
     <ui:define name="content">
+    
+    	<h:panelGroup rendered="#{not empty selectedServername}">
+    	
         <h1>#{selectedServername.name}</h1>
         
         <ui:repeat var="dataType" value="#{dataTypes}" varStatus="loop1">
@@ -11,14 +14,14 @@
         	<ui:repeat var="dataName" value="#{serverNameProducer.getDataNames(dataType)}" varStatus="loop2">
         		<h3>#{dataName.name}</h3>
         		<ui:repeat var="dataProperty" value="#{serverNameProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
-        			<div id="#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div" style="width: 980px; height: 280px;"></div>
+        			<div id="#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div" style="width: 1250px; height: 260px;"></div>
         		</ui:repeat>
         	</ui:repeat>
         </ui:repeat>
         
 	<script type="text/javascript">
 
-		var n = 900;
+		var n = 1440;
 		var data = [];
 		var chart = [];
 		var options = [];
@@ -107,7 +110,9 @@
 	</script>
 	
 	
+	</h:panelGroup>
 	
+	<h:panelGroup rendered="#{empty selectedServername}">Could not find server</h:panelGroup>
         
     </ui:define>
     

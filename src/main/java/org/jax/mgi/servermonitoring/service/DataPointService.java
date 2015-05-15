@@ -58,7 +58,7 @@ public class DataPointService {
 
 	public List<DataPointDTO> listDataPoints(DataPointDTO data, int amount) {
 
-		DataSensor dataSensor = getDataSensor(data);
+		DataSensor dataSensor = getDataSensor(data, false);
 		String query = "select dp from DataPoint dp where dp.dataSensor.id = :dataSensor order by dp.dataTimeStamp desc";
 		Query q = em.createQuery(query).setParameter("dataSensor", dataSensor.getId());
 		
@@ -74,23 +74,19 @@ public class DataPointService {
 		}
 		return dtos;
 	}
-	
-	public ServerName getServer(String serverName) {
-		return getServer(serverName);
-	}
 
 	private DataPoint saveDataPoint(DataPointDTO data) {
-		DataSensor dataSensor = getDataSensor(data);
+		DataSensor dataSensor = getDataSensor(data, true);
 		DataPoint dataPoint = new DataPoint(dataSensor, data.getDataValue(), new Date());
 		em.persist(dataPoint);
 		return dataPoint;
 	}
 	
-	private DataSensor getDataSensor(DataPointDTO data) {
-		ServerName serverName = getServerName(data);
-		DataType dataType = getDataType(data);
-		DataName dataName = getDataName(data);
-		DataProperty dataProperty = getDataProperty(data);
+	private DataSensor getDataSensor(DataPointDTO data, boolean createNew) {
+		ServerName serverName = getServerName(data, createNew);
+		DataType dataType = getDataType(data, createNew);
+		DataName dataName = getDataName(data, createNew);
+		DataProperty dataProperty = getDataProperty(data, createNew);
 		try {
 			if(debug) log.info("getDataSensor: " + "select ds from DataSensor ds where ds.serverName.id = " + serverName.getName() + " and ds.dataType.id = " + dataType.getType() + " and ds.dataName.id = " + dataName.getName() + " and ds.dataProperty.id = " + dataProperty.getProperty());
 			return (DataSensor)em.createQuery("select ds from DataSensor ds where ds.serverName.id = :serverName and ds.dataType.id = :dataType and ds.dataName.id = :dataName and ds.dataProperty.id = :dataProperty")
@@ -100,57 +96,83 @@ public class DataPointService {
 					.setParameter("dataProperty", dataProperty.getId())
 					.getSingleResult();
 		} catch(NoResultException e) {
-			DataSensor dataSensor = new DataSensor(serverName, dataType, dataName, dataProperty);
-			em.persist(dataSensor);
-			return dataSensor;
+			if(createNew) {
+				DataSensor dataSensor = new DataSensor(serverName, dataType, dataName, dataProperty);
+				em.persist(dataSensor);
+				return dataSensor;
+			} else {
+				return null;
+			}
 		}
 	}
 
-	private DataName getDataName(DataPointDTO data) {
+	private DataName getDataName(DataPointDTO data, boolean createNew) {
 		try {
 			if(debug) log.info("getDataName: " + "select dn from DataName dn where name = " + data.getDataName());
 			return (DataName)em.createQuery("select dn from DataName dn where name = :name")
 				.setParameter("name", data.getDataName()).getSingleResult();
 		} catch(NoResultException e) {
-			DataName dataName = new DataName(data.getDataName());
-			em.persist(dataName);
-			return dataName;
+			if(createNew) {
+				DataName dataName = new DataName(data.getDataName());
+				em.persist(dataName);
+				return dataName;
+			} else {
+				return null;
+			}
 		}
 	}
 
-	private DataType getDataType(DataPointDTO data) {
+	private DataType getDataType(DataPointDTO data, boolean createNew) {
 		try {
 			if(debug) log.info("getDataType: " + "select dt from DataType dt where type = :type");
 			return (DataType)em.createQuery("select dt from DataType dt where type = :type")
 					.setParameter("type", data.getDataType()).getSingleResult();
 		} catch(NoResultException e) {
-			DataType dataType = new DataType(data.getDataType());
-			em.persist(dataType);
-			return dataType;
+			if(createNew) {
+				DataType dataType = new DataType(data.getDataType());
+				em.persist(dataType);
+				return dataType;
+			} else {
+				return null;
+			}
 		}
 	}
 	
-	private DataProperty getDataProperty(DataPointDTO data) {
+	private DataProperty getDataProperty(DataPointDTO data, boolean createNew) {
 		try {
 			if(debug) log.info("getDataProperty: " + "select dp from DataProperty dp where property = :property");
 			return (DataProperty)em.createQuery("select dp from DataProperty dp where property = :property")
 					.setParameter("property", data.getDataProperty()).getSingleResult();
 		} catch(NoResultException e) {
-			DataProperty dataProperty = new DataProperty(data.getDataProperty());
-			em.persist(dataProperty);
-			return dataProperty;
+			if(createNew) {
+				DataProperty dataProperty = new DataProperty(data.getDataProperty());
+				em.persist(dataProperty);
+				return dataProperty;
+			} else {
+				return null;
+			}
 		}
 	}
 
-	private ServerName getServerName(DataPointDTO data) {
+	public ServerName getServerName(String serverName) {
+		DataPointDTO dto = new DataPointDTO();
+		dto.setServerName(serverName);
+		return getServerName(dto, false);
+	}
+	
+	private ServerName getServerName(DataPointDTO data, boolean createNew) {
 		try {
 			if(debug) log.info("getServerName: " + "select sn from ServerName sn where name = :name");
 			return (ServerName)em.createQuery("select sn from ServerName sn where name = :name")
 					.setParameter("name", data.getServerName()).getSingleResult();
 		} catch(NoResultException e) {
-			ServerName serverName = new ServerName(data.getServerName());
-			em.persist(serverName);
-			return serverName;
+			if(createNew) {
+				ServerName serverName = new ServerName(data.getServerName());
+				em.persist(serverName);
+				return serverName;
+			} else {
+				return null;
+			}
 		}
 	}
 
