@@ -1,5 +1,10 @@
 package org.jax.mgi.servermonitoring.service;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+
 import com.wordnik.swagger.config.ConfigFactory;
 import com.wordnik.swagger.config.ScannerFactory;
 import com.wordnik.swagger.config.SwaggerConfig;
@@ -7,13 +12,6 @@ import com.wordnik.swagger.jaxrs.config.DefaultJaxrsScanner;
 import com.wordnik.swagger.jaxrs.reader.DefaultJaxrsApiReader;
 import com.wordnik.swagger.model.ApiInfo;
 import com.wordnik.swagger.reader.ClassReaders;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-
-import scala.sys.SystemProperties;
 
 @SuppressWarnings("serial")
 @WebServlet(name = "SwaggerJaxrsConfiguration", loadOnStartup = 1)

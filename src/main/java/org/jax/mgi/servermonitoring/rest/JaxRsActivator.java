@@ -23,7 +23,6 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
-import org.jax.mgi.servermonitoring.model.Member;
 
 import com.wordnik.swagger.annotations.Api;
 

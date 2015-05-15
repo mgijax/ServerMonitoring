@@ -74,6 +74,10 @@ public class DataPointService {
 		}
 		return dtos;
 	}
+	
+	public ServerName getServer(String serverName) {
+		return getServer(serverName);
+	}
 
 	private DataPoint saveDataPoint(DataPointDTO data) {
 		DataSensor dataSensor = getDataSensor(data);

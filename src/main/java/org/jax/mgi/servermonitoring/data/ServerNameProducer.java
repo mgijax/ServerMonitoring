@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -20,14 +21,17 @@ import org.jax.mgi.servermonitoring.service.DataPointService;
 public class ServerNameProducer {
 
 	@Inject
+	private FacesContext facesContext;
+
+	@Inject
 	private DataPointService dataPointService;
 
 	private List<ServerName> servers;
-	
+
 	private HashMap<String, List<DataType>> dataTypeMap = new HashMap<String, List<DataType>>();
 	private HashMap<String, List<DataName>> dataNameMap = new HashMap<String, List<DataName>>();
 	private HashMap<String, List<DataProperty>> dataPropMap = new HashMap<String, List<DataProperty>>();
-	
+
 	@Produces
 	@Named
 	private ServerName selectedServername;
@@ -46,7 +50,18 @@ public class ServerNameProducer {
 
 	@PostConstruct
 	public void getServerList() {
+		String serverName = getParam("serverName");
+		
+		System.out.println("Post Construct: " + serverName);
+		if(serverName != null && !serverName.equals("")) {
+			selectedServername = dataPointService.getServer(serverName);
+		}
+
 		servers = dataPointService.getServerList();
+	}
+
+	private String getParam(String string) {
+		return (String) facesContext.getExternalContext().getRequestParameterMap().get(string);
 	}
 
 	@Produces
