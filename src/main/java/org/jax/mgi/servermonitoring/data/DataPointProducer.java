@@ -18,7 +18,7 @@ import org.jax.mgi.servermonitoring.service.DataPointService;
 
 @Named
 @RequestScoped
-public class ServerNameProducer {
+public class DataPointProducer {
 
 	@Inject
 	private FacesContext facesContext;
