@@ -48,7 +48,7 @@ public class DataPointService {
 
 	@Inject
 	private Event<DataPoint> serverDataSrc;
-	
+
 	private boolean debug = false;
 
 	public void createDataPoint(DataPointDTO data) throws Exception {
@@ -57,36 +57,44 @@ public class DataPointService {
 	}
 
 	public List<DataPointDTO> listDataPoints(DataPointDTO data, int amount) {
-
-		DataSensor dataSensor = getDataSensor(data, false);
-		String query = "select dp from DataPoint dp where dp.dataSensor.id = :dataSensor order by dp.dataTimeStamp desc";
-		Query q = em.createQuery(query).setParameter("dataSensor", dataSensor.getId());
-		
-		if(amount > 0) {
-			q.setMaxResults(amount);
+		List<DataSensor> dataSensors = getDataSensors(data);
+		if(dataSensors.size() > 0) {
+			ArrayList<Long> ids = new ArrayList<Long>();
+			for(DataSensor d: dataSensors) {
+				ids.add(d.getId());
+			}
+			String query = "select dp from DataPoint dp where dp.dataSensor.id in (:ids) order by dp.dataTimeStamp desc";
+			Query q = em.createQuery(query).setParameter("ids", ids);
+	
+			if(amount > 0) {
+				q.setMaxResults(amount);
+			}
+	
+			List<DataPoint> list = q.getResultList();
+			
+			List<DataPointDTO> dtos = new ArrayList<DataPointDTO>();
+			for(DataPoint d: list) {
+				dtos.add(new DataPointDTO(d));
+			}
+			return dtos;
+		} else {
+			return new ArrayList<DataPointDTO>();
 		}
-
-		List<DataPoint> list = q.getResultList();
-		
-		List<DataPointDTO> dtos = new ArrayList<DataPointDTO>();
-		for(DataPoint d: list) {
-			dtos.add(new DataPointDTO(d));
-		}
-		return dtos;
 	}
 
 	private DataPoint saveDataPoint(DataPointDTO data) {
-		DataSensor dataSensor = getDataSensor(data, true);
+		DataSensor dataSensor = createDataSensor(data);
 		DataPoint dataPoint = new DataPoint(dataSensor, data.getDataValue(), new Date());
 		em.persist(dataPoint);
 		return dataPoint;
 	}
-	
-	private DataSensor getDataSensor(DataPointDTO data, boolean createNew) {
-		ServerName serverName = getServerName(data, createNew);
-		DataType dataType = getDataType(data, createNew);
-		DataName dataName = getDataName(data, createNew);
-		DataProperty dataProperty = getDataProperty(data, createNew);
+
+	private DataSensor createDataSensor(DataPointDTO data) {
+		ServerName serverName = getServerName(data, true);
+		DataType dataType = getDataType(data, true);
+		DataName dataName = getDataName(data, true);
+		DataProperty dataProperty = getDataProperty(data, true);
+
 		try {
 			if(debug) log.info("getDataSensor: " + "select ds from DataSensor ds where ds.serverName.id = " + serverName.getName() + " and ds.dataType.id = " + dataType.getType() + " and ds.dataName.id = " + dataName.getName() + " and ds.dataProperty.id = " + dataProperty.getProperty());
 			return (DataSensor)em.createQuery("select ds from DataSensor ds where ds.serverName.id = :serverName and ds.dataType.id = :dataType and ds.dataName.id = :dataName and ds.dataProperty.id = :dataProperty")
@@ -96,13 +104,54 @@ public class DataPointService {
 					.setParameter("dataProperty", dataProperty.getId())
 					.getSingleResult();
 		} catch(NoResultException e) {
-			if(createNew) {
-				DataSensor dataSensor = new DataSensor(serverName, dataType, dataName, dataProperty);
-				em.persist(dataSensor);
-				return dataSensor;
-			} else {
-				return null;
+			DataSensor dataSensor = new DataSensor(serverName, dataType, dataName, dataProperty);
+			em.persist(dataSensor);
+			return dataSensor;
+		}
+	}
+
+
+	private List<DataSensor> getDataSensors(DataPointDTO data) {
+		try {
+			String query = "select ds from DataSensor ds where ";
+
+			if(data.getServerName() != null) {
+				query += "ds.serverName.name = :serverName and ";
 			}
+			if(data.getDataType() != null) {
+				query += "ds.dataType.type = :dataType and ";
+			}
+
+			if(data.getDataName() != null) {
+				query += "ds.dataName.name = :dataName and ";	
+			}
+
+			if(data.getDataProperty() != null) {
+				query += "ds.dataProperty.property = :dataProperty and ";
+			}
+
+			query += " 1 = 1";
+
+			if(debug) log.info("getDataSensor: " + query);
+
+			Query q = em.createQuery(query);
+
+			if(data.getServerName() != null) {
+				q.setParameter("serverName", data.getServerName());
+			}
+			if(data.getDataType() != null) {
+				q.setParameter("dataType", data.getDataType());
+			}
+			if(data.getDataName() != null) {
+				q.setParameter("dataName", data.getDataName());
+			}
+			if(data.getDataProperty() != null) {
+				q.setParameter("dataProperty", data.getDataProperty());
+			}
+			return q.getResultList();
+
+		} catch(NoResultException e) {
+			return new ArrayList<DataSensor>();
 		}
 	}
 
@@ -110,7 +159,7 @@ public class DataPointService {
 		try {
 			if(debug) log.info("getDataName: " + "select dn from DataName dn where name = " + data.getDataName());
 			return (DataName)em.createQuery("select dn from DataName dn where name = :name")
-				.setParameter("name", data.getDataName()).getSingleResult();
+					.setParameter("name", data.getDataName()).getSingleResult();
 		} catch(NoResultException e) {
 			if(createNew) {
 				DataName dataName = new DataName(data.getDataName());
@@ -137,7 +186,7 @@ public class DataPointService {
 			}
 		}
 	}
-	
+
 	private DataProperty getDataProperty(DataPointDTO data, boolean createNew) {
 		try {
 			if(debug) log.info("getDataProperty: " + "select dp from DataProperty dp where property = :property");
@@ -159,7 +208,7 @@ public class DataPointService {
 		dto.setServerName(serverName);
 		return getServerName(dto, false);
 	}
-	
+
 	private ServerName getServerName(DataPointDTO data, boolean createNew) {
 		try {
 			if(debug) log.info("getServerName: " + "select sn from ServerName sn where name = :name");
@@ -194,10 +243,10 @@ public class DataPointService {
 
 			if(debug) log.info("Query: " + "select dp from DataPoint dp where dp.id in (:ids)");
 			List<DataPoint> dps = em.createQuery("select dp from DataPoint dp where dp.id in (:ids)").setParameter("ids", list).getResultList();
-			
-//			for(Object[] o: list) {
-//				dps.add((DataPoint)o[0]);
-//			}
+
+			//			for(Object[] o: list) {
+			//				dps.add((DataPoint)o[0]);
+			//			}
 			return dps;
 		} catch(NoResultException e) {
 			return null;
@@ -212,9 +261,9 @@ public class DataPointService {
 	public List<DataName> getDataNames(ServerName selectedServername, DataType dataType) {
 		if(debug) log.info("getDataNames: " + "select distinct ds.dataName from DataSensor ds where ds.serverName = :serverName and ds.dataType = :dataType");
 		return em.createQuery("select distinct ds.dataName from DataSensor ds where ds.serverName.id = :serverName and ds.dataType.id = :dataType")
-			.setParameter("serverName", selectedServername.getId())
-			.setParameter("dataType", dataType.getId())
-			.getResultList();
+				.setParameter("serverName", selectedServername.getId())
+				.setParameter("dataType", dataType.getId())
+				.getResultList();
 	}
 
 	public List<DataProperty> getDataProperties(ServerName selectedServername, DataType dataType, DataName dataName) {

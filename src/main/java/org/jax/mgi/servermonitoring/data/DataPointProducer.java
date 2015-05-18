@@ -42,12 +42,6 @@ public class DataPointProducer {
 		return servers;
 	}
 
-	@Named
-	public String goToServer(ServerName server) {
-		selectedServername = server;
-		return "server";
-	}
-
 	@PostConstruct
 	public void getServerList() {
 		String serverName = getParam("serverName");

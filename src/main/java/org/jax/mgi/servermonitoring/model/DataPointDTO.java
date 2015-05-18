@@ -17,7 +17,7 @@ public class DataPointDTO implements Serializable {
 	private String dataName;
 	private String dataProperty;
 	private String dataValue;
-	private Date dataTimeStamp;
+	private Date dataTimeStamp = new Date();
 
 	public DataPointDTO() { }
 
@@ -67,6 +67,9 @@ public class DataPointDTO implements Serializable {
 		this.dataTimeStamp = dataTimeStamp;
 	}
 	public String toJSON() {
+		return "{\"serverName\": \"" + serverName + "\", \"dataType\": \"" + dataType + "\", \"dataName\": \"" + dataName + "\", \"dataProperty\": \"" + dataProperty + "\", \"dataValue\": \"" + dataValue + "\", \"dataTimeStamp\": \"" + dataTimeStamp.getTime() + "\"}"; 
+	}
+	public String toString() {
 		return "{\"serverName\": \"" + serverName + "\", \"dataType\": \"" + dataType + "\", \"dataName\": \"" + dataName + "\", \"dataProperty\": \"" + dataProperty + "\", \"dataValue\": \"" + dataValue + "\", \"dataTimeStamp\": \"" + dataTimeStamp.getTime() + "\"}"; 
 	}
 }

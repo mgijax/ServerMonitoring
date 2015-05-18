@@ -11,9 +11,9 @@
         
         <ui:repeat var="dataType" value="#{dataTypes}" varStatus="loop1">
         	<h2>#{dataType.type}</h2>
-        	<ui:repeat var="dataName" value="#{serverNameProducer.getDataNames(dataType)}" varStatus="loop2">
+        	<ui:repeat var="dataName" value="#{dataPointProducer.getDataNames(dataType)}" varStatus="loop2">
         		<h3>#{dataName.name}</h3>
-        		<ui:repeat var="dataProperty" value="#{serverNameProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
+        		<ui:repeat var="dataProperty" value="#{dataPointProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
         			<div id="#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div" style="width: 1250px; height: 260px;"></div>
         		</ui:repeat>
         	</ui:repeat>
@@ -35,11 +35,11 @@
 			data["#{dataType.type}"] = [];
 			chart["#{dataType.type}"] = [];
 			options["#{dataType.type}"] = [];
-			<ui:repeat var="dataName" value="#{serverNameProducer.getDataNames(dataType)}" varStatus="loop2">
+			<ui:repeat var="dataName" value="#{dataPointProducer.getDataNames(dataType)}" varStatus="loop2">
 				data["#{dataType.type}"]["#{dataName.name}"] = [];
 				chart["#{dataType.type}"]["#{dataName.name}"] = [];
 				options["#{dataType.type}"]["#{dataName.name}"] = [];
-				<ui:repeat var="dataProperty" value="#{serverNameProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
+				<ui:repeat var="dataProperty" value="#{dataPointProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
 					updateChartDataOptions("#{dataType.type}", "#{dataName.name}", "#{dataProperty.property}", #{(loop1.index * 10000) + (loop2.index * 100) + loop3.index});
 				</ui:repeat>
 			</ui:repeat>
@@ -68,8 +68,30 @@
 				contentType: "application/json",
 				success: function(jsondata) {
 					jsondata.reverse();
+					var last = 0;
+					var lasttime = 0;
 					for(var i = 0; i < jsondata.length; i++) {
-						data[type][name][property].addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
+						var current = new Date(jsondata[i].dataTimeStamp * 1);
+						
+						if(type == "Disk" && property != "Speed") {
+							var matches_array = jsondata[i].dataValue.match(/(\d+)(\w)/);
+							data[type][name][property].addRow([current, matches_array[1] * 1]);
+						} else if(type == "System" && name == "Uptime") {
+							var matches_array = jsondata[i].dataValue.match(/(\d+):.*/);
+							data[type][name][property].addRow([current, matches_array[1] * 1]);
+						} else if(type == "Network") {
+							if(lasttime != 0) {
+								timediff = ((jsondata[i].dataTimeStamp * 1) / 1000) - lasttime;
+								amountdiff = (jsondata[i].dataValue * 1) - last;
+								//console.log([jsondata[i].dataTimeStamp, jsondata[i].dataValue, timediff, amountdiff]);
+								data[type][name][property].addRow([current, (amountdiff / timediff)]);
+							}
+							last = (jsondata[i].dataValue * 1);
+							lasttime = ((jsondata[i].dataTimeStamp * 1) / 1000);
+						} else {
+							data[type][name][property].addRow([current, jsondata[i].dataValue * 1]);
+						}
+						
 					}
 					chart[type][name][property].draw(data[type][name][property], options[type][name][property]);
 				},
