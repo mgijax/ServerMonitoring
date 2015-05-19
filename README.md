@@ -4,7 +4,7 @@ ServerMonitoring: Assortment of technologies running on JBoss Wildfly
 What is it?
 -----------
 
-This is a graphical view of the data that is being collected by the <a href="">Watch Dog Clients</a>. This project is in no means complete. Check out the goals section for more complete list of features that we want to implement.
+This is a graphical view of the data that is being collected by the <a href="https://github.com/mgijax/WatchDog">Watch Dog Clients</a>. This project is in no means complete. Check out the goals section for more complete list of features that we want to implement.
 
 This project was meant to be a simple install, deployable Maven 3 project to monitor Jax Lab MGI servers.
 Also this project is to help get the foot in the door developing with Java EE 7 on JBoss WildFly.
