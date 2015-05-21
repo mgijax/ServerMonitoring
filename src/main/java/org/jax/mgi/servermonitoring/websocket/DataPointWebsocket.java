@@ -1,6 +1,5 @@
 package org.jax.mgi.servermonitoring.websocket;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,12 +34,12 @@ public class DataPointWebsocket {
 
 	@OnMessage
 	public void onMessage(final String message, final Session client) {
-		try {
-			client.getBasicRemote().sendText("client message: " + message);
+		//try {
+			//client.getBasicRemote().sendText("client message: " + message);
 			sessionMap.put(client.getId(), message);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		//} catch (IOException e) {
+		//	e.printStackTrace();
+		//}
 	}
 
 	@OnClose

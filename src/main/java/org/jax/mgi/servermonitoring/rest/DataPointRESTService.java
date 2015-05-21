@@ -13,6 +13,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,7 +29,9 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
 @Path("/datapoint")
-@Api(value = "/datapoint", description = "Data Point REST Service: Server Data Point Service is used to input data points collected from each server that runs the Watch Dog python software")
+@Api(value = "/datapoint", description = "This REST Service Endpoint is for creating and listing Data Points. Posting to the Data Point Endpoint is used "
+		+ "to input data points collected from each server that runs the Watch Dog client software. Getting from the Data Point Endpoint will give a list "
+		+ "of data points based on the paramaters provided.")
 @RequestScoped
 public class DataPointRESTService {
 
@@ -41,8 +44,10 @@ public class DataPointRESTService {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Create Data Point: Creates a Data Point Entry for the specific collection of data")
-	public Response createDataPoint(@ApiParam(value = "New member to create", required = true) DataPointDTO data) {
+	@ApiOperation(value = "Create Data Point: Creates a Data Point Entry from the Data Point JSon model", notes="This takes in a new data point and if any of the values in the data point do not exist "
+			+ "it will create them before saving the data point, this way new monitors can be developed with out the need to modify the server code. Data Time stamp is not required as the server will "
+			+ "overwrite it with the time the server recieved the data point.")
+	public Response createDataPoint(@ApiParam(value = "New Data Point to create", required = true, name="dataPoint") DataPointDTO data) {
 				
 		Response.ResponseBuilder builder = null;
 		
@@ -62,14 +67,25 @@ public class DataPointRESTService {
 		return builder.build();
 	}
 	
-	@POST
-	@Path("/list")
-	@Consumes(MediaType.APPLICATION_JSON)
+//	  "serverName": "string",
+//	  "dataType": "string",
+//	  "dataName": "string",
+//	  "dataProperty": "string",
+	
+	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "List Data Points: Gets a list of all the Data Point Entries in the system", notes="These are the notes", response=DataPointDTO.class, responseContainer="List")
-	public List<DataPointDTO> listDataPoints(@ApiParam(value = "New member to create", required = true) DataPointDTO data, @ApiParam(value="Amount to return") @QueryParam(value = "amount") int amount) {
-		if(amount == 0) amount = 600;
-		return dataPointManager.listDataPoints(data, amount);
+	@ApiOperation(value = "List Data Points: Gets a list of all the Data Point Entries in the system", notes="Each Paramater filters the list of the data points if not paramaters are provided then the "
+			+ "system will just get the last amount of data points that it has recieved. If amount is not provided then its default is set to 720. This way the system does not go down due to too much "
+			+ "data.", response=DataPointDTO.class, responseContainer="List")
+	public List<DataPointDTO> listDataPoints(
+			@ApiParam(value = "Server Name") @QueryParam(value = "serverName") String serverName,
+			@ApiParam(value = "Data Type") @QueryParam(value = "dataType") String dataType,
+			@ApiParam(value = "Data Name") @QueryParam(value = "dataName") String dataName,
+			@ApiParam(value = "Data Property") @QueryParam(value = "dataProperty") String dataProperty,
+			@ApiParam(value="Amount to return", defaultValue="720") @QueryParam(value = "amount") int amount) {
+		if(amount == 0) amount = 720;
+		DataPointDTO dto = new DataPointDTO(serverName, dataType, dataName, dataProperty);
+		return dataPointManager.listDataPoints(dto, amount);
 	}
 	
 	private void validateData(DataPointDTO data) throws ConstraintViolationException, ValidationException {

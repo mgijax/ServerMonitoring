@@ -69,9 +69,6 @@
 			}
 		</script>
 	
-			
-
-
 		<script type="text/javascript">
         /* <![CDATA[ */
         
@@ -85,8 +82,8 @@
 				chart[servername].draw(data[servername], options[servername]);
 	
 				$.ajax({
-					type: "POST",
-					url: "http://" + window.location.host + "/rest/datapoint/list?amount=" + n,
+					type: "GET",
+					url: "http://" + window.location.host + "/rest/datapoint",
 					dataType: "json",
 					contentType: "application/json",
 					success: function(jsondata) {
@@ -96,10 +93,9 @@
 						}
 						chart[servername].draw(data[servername], options[servername]);
 					},
-					data: '{"serverName": "' + servername + '", "dataName": "' + name + '", "dataType": "' + type + '", "dataProperty": "' + property + '"}'
+					data: {serverName: servername, dataName: name, dataType: type, dataProperty: property, amount: n}
 				});
 			}
-
 
 			function WebSocketTest() {
 				if ("WebSocket" in window) {

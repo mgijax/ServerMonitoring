@@ -19,7 +19,7 @@ import com.wordnik.swagger.annotations.ApiModel;
 @SuppressWarnings("serial")
 @Entity
 @XmlRootElement
-@ApiModel
+@ApiModel(description="This model is used to hold the data for one data point on one server.")
 @Table(indexes = {
 		@Index(name="datapont_datasensor_id_index", columnList="datasensor_id"),
 		@Index(name="datapont_datatimestamp_index", columnList="datatimestamp"),

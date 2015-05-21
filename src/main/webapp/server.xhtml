@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:f="http://java.sun.com/jsf/core"
@@ -66,8 +67,8 @@
 			
 
 			$.ajax({
-				type: "POST",
-				url: "http://" + window.location.host + "/rest/datapoint/list?amount=" + n,
+				type: "GET",
+				url: "http://" + window.location.host + "/rest/datapoint",
 				dataType: "json",
 				contentType: "application/json",
 				success: function(jsondata) {
@@ -102,7 +103,7 @@
 					}
 					chart[type][name][property].draw(data[type][name][property], options[type][name][property]);
 				},
-				data: '{"serverName": "#{selectedServername.name}", "dataName": "' + name + '", "dataType": "' + type + '", "dataProperty": "' + property + '"}'
+				data: {serverName: "#{selectedServername.name}", dataName: name, dataType: type, dataProperty: property, amount: n}
 			});
 		}
 

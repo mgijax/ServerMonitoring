@@ -30,6 +30,13 @@ public class DataPointDTO implements Serializable {
 		this.dataTimeStamp = data.getDataTimeStamp();
 	}
 
+	public DataPointDTO(String serverName, String dataType, String dataName, String dataProperty) {
+		this.serverName = serverName;
+		this.dataType = dataType;
+		this.dataName = dataName;
+		this.dataProperty = dataProperty;
+	}
+
 	public String getServerName() {
 		return serverName;
 	}

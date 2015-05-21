@@ -1,6 +1,5 @@
 package org.jax.mgi.servermonitoring.websocket;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -49,11 +48,11 @@ public class LastUpdateWebsocket {
 
 	@OnMessage
 	public void onMessage(final String message, final Session client) {
-		try {
-			client.getBasicRemote().sendText("client message: " + message);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		//try {
+		//	client.getBasicRemote().sendText("client message: " + message);
+		//} catch (IOException e) {
+		//	e.printStackTrace();
+		//}
 	}
 
 	@OnClose
