@@ -20,158 +20,30 @@
         	</ui:repeat>
         </ui:repeat>
         
-	<script type="text/javascript">
+    	<h:outputScript library="js" name="servercharts.js" />
+    
+		<script type="text/javascript">
 
-		var n = 1440;
-		var data = [];
-		var chart = [];
-		var options = [];
-		var lastvalue = [];
-
-		google.load('visualization', '1.1', {packages: ['corechart', 'line']});
-		google.setOnLoadCallback(setupCharts);
-
-		function setupCharts() {
-
-		<ui:repeat var="dataType" value="#{dataTypes}" varStatus="loop1">
-			data["#{dataType.type}"] = [];
-			chart["#{dataType.type}"] = [];
-			options["#{dataType.type}"] = [];
-			lastvalue["#{dataType.type}"] = [];
-			<ui:repeat var="dataName" value="#{dataPointProducer.getDataNames(dataType)}" varStatus="loop2">
-				data["#{dataType.type}"]["#{dataName.name}"] = [];
-				chart["#{dataType.type}"]["#{dataName.name}"] = [];
-				options["#{dataType.type}"]["#{dataName.name}"] = [];
-				lastvalue["#{dataType.type}"]["#{dataName.name}"] = [];
-				<ui:repeat var="dataProperty" value="#{dataPointProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
-					updateChartDataOptions("#{dataType.type}", "#{dataName.name}", "#{dataProperty.property}", #{(loop1.index * 10000) + (loop2.index * 100) + loop3.index});
+		SERVER_CHARTS.amount = 1440;
+		SERVER_CHARTS.initServerCharts(function(){
+			<ui:repeat var="dataType" value="#{dataTypes}" varStatus="loop1">
+				<ui:repeat var="dataName" value="#{dataPointProducer.getDataNames(dataType)}" varStatus="loop2">
+					<ui:repeat var="dataProperty" value="#{dataPointProducer.getDataProperties(dataType, dataName)}" varStatus="loop3">
+						SERVER_CHARTS.updateChartDataOptions({
+							servername: "#{selectedServername.name}", 
+							type: "#{dataType.type}", 
+							name: "#{dataName.name}", 
+							property: "#{dataProperty.property}", 
+							id: "#{(loop1.index * 10000) + (loop2.index * 100) + loop3.index}_div"
+						});
+					</ui:repeat>
 				</ui:repeat>
 			</ui:repeat>
-		</ui:repeat>
+		});
 
-		}
-	</script>
-	
-	<script type="text/javascript">
-	/* <![CDATA[ */
+		SERVER_CHARTS.openWebSocket("#{selectedServername.name}");
+		</script>
 
-		function updateChartDataOptions(type, name, property, id) {
-
-
-			data[type][name][property] = new google.visualization.DataTable();
-			data[type][name][property].addColumn("datetime", "Time");
-			data[type][name][property].addColumn("number", name);
-			options[type][name][property] = { hAxis: { title: 'Time' }, vAxis: { title: property} };
-			chart[type][name][property] = new google.visualization.LineChart(document.getElementById(id + "_div"));
-			chart[type][name][property].draw(data[type][name][property], options[type][name][property]);
-			
-
-			$.ajax({
-				type: "GET",
-				url: "http://" + window.location.host + "/rest/datapoint",
-				dataType: "json",
-				contentType: "application/json",
-				success: function(jsondata) {
-					jsondata.reverse();
-					var last = 0;
-					var lasttime = 0;
-					for(var i = 0; i < jsondata.length; i++) {
-						var current = new Date(jsondata[i].dataTimeStamp * 1);
-						
-						if(type == "Disk" && property != "Speed") {
-							var matches_array = jsondata[i].dataValue.match(/(\d+)(\w)/);
-							data[type][name][property].addRow([current, matches_array[1] * 1]);
-							
-						} else if(type == "System" && name == "Uptime") {
-							var matches_array = jsondata[i].dataValue.match(/(\d+):.*/);
-							data[type][name][property].addRow([current, matches_array[1] * 1]);
-						} else if(type == "Network") {
-							if(lasttime != 0) {
-								timediff = ((jsondata[i].dataTimeStamp * 1) / 1000) - lasttime;
-								amountdiff = (jsondata[i].dataValue * 1) - last;
-								//console.log([jsondata[i].dataTimeStamp, jsondata[i].dataValue, timediff, amountdiff]);
-								data[type][name][property].addRow([current, (amountdiff / timediff)]);
-							}
-							lastvalue[type][name][property] = jsondata[i].dataValue * 1;
-							last = (jsondata[i].dataValue * 1);
-							lasttime = ((jsondata[i].dataTimeStamp * 1) / 1000);
-						} else {
-							data[type][name][property].addRow([current, jsondata[i].dataValue * 1]);
-						}
-						
-						
-					}
-					chart[type][name][property].draw(data[type][name][property], options[type][name][property]);
-				},
-				data: {serverName: "#{selectedServername.name}", dataName: name, dataType: type, dataProperty: property, amount: n}
-			});
-		}
-
-		function WebSocketTest() {
-			if ("WebSocket" in window) {
-				var url = 'ws://' + window.location.host + '/websocket';
-				var ws = new WebSocket(url);
-				
-				ws.onopen = function()  {
-					console.log("Connection Opened");
-					ws.send("#{selectedServername.name}");
-				};
-
-				ws.onmessage = function (evt) { 
-					if(evt.data == "session opened") return;
-					var msg = JSON.parse(evt.data);
-					//console.log(msg);
-					if(data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows() > 0) {
-
-						
-						var rows = data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows();
-						var lasttime = data[msg.dataType][msg.dataName][msg.dataProperty].getValue(rows - 1, 0);
-						var last = lastvalue[msg.dataType][msg.dataName][msg.dataProperty];
-
-						
-						//last = (jsondata[i].dataValue * 1);
-						//lasttime = ((jsondata[i].dataTimeStamp * 1) / 1000);
-						
-						var current = new Date(msg.dataTimeStamp * 1);
-						
-						if(msg.dataType == "Disk" && msg.dataProperty != "Speed") {
-							var matches_array = msg.dataValue.match(/(\d+)(\w)/);
-							data[msg.dataType][msg.dataName][msg.dataProperty].addRow([current, matches_array[1] * 1]);
-						} else if(msg.dataType == "System" && msg.dataName == "Uptime") {
-							var matches_array = msg.dataValue.match(/(\d+):.*/);
-							data[msg.dataType][msg.dataName][msg.dataProperty].addRow([current, matches_array[1] * 1]);
-						} else if(msg.dataType == "Network") {
-							if(lasttime != 0) {
-								timediff = ((msg.dataTimeStamp * 1) - lasttime.getTime()) / 1000;
-								amountdiff = (msg.dataValue * 1) - last;
-
-								//console.log([msg.dataType, msg.dataName, msg.dataProperty, msg.dataValue, last, timediff, amountdiff, (amountdiff / timediff)]);
-								data[msg.dataType][msg.dataName][msg.dataProperty].addRow([current, (amountdiff / timediff)]);
-								lastvalue[msg.dataType][msg.dataName][msg.dataProperty] = (msg.dataValue * 1);
-							}
-
-						} else {
-							data[msg.dataType][msg.dataName][msg.dataProperty].addRow([current, msg.dataValue * 1]);
-						}
-
-					}
-					while(data[msg.dataType][msg.dataName][msg.dataProperty].getNumberOfRows() > n) data[msg.dataType][msg.dataName][msg.dataProperty].removeRow(0);
-					chart[msg.dataType][msg.dataName][msg.dataProperty].draw(data[msg.dataType][msg.dataName][msg.dataProperty], options[msg.dataType][msg.dataName][msg.dataProperty]);
-				};
-
-				ws.onclose = function (evt) {
-					console.log("Connection Closed");
-				};
-
-			} else {
-				alert("WebSocket NOT supported by your Browser!");
-			}
-		}
-		window.addEventListener("load", WebSocketTest, false);
-	/* ]]> */
-	</script>
-	
-	
 	</h:panelGroup>
 	
 	<h:panelGroup rendered="#{empty selectedServername}">Could not find server</h:panelGroup>

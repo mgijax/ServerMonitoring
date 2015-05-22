@@ -52,88 +52,27 @@
 			</h:column>
 		</h:dataTable>
 
+	
+		<h:outputScript library="js" name="servercharts.js" />
+		
 		<script type="text/javascript">
-	
-			var n = 720;
-			var data = [];
-			var chart = [];
-			var options = [];
-	
-			google.load('visualization', '1.1', {packages: ['corechart', 'line']});
-			google.setOnLoadCallback(setupCharts);
-
-			function setupCharts() {
+			SERVER_CHARTS.amount = 720;
+		
+			SERVER_CHARTS.initServerCharts(function() {
 				<ui:repeat var="serverName" value="#{servers}">
-					updateChartDataOptions("#{serverName.name}", "System", "Load", "5min");
+					SERVER_CHARTS.updateChartDataOptions({
+							servername: "#{serverName.name}", 
+							type: "System", 
+							name: "Load", 
+							property: "5min", 
+							id: "#{serverName.name}_graph_div"
+					});
 				</ui:repeat>
-			}
+			});
+
+			SERVER_CHARTS.openWebSocket("all");
 		</script>
-	
-		<script type="text/javascript">
-        /* <![CDATA[ */
-        
-	        function updateChartDataOptions(servername, type, name, property) {
-	
-				data[servername] = new google.visualization.DataTable();
-				data[servername].addColumn("datetime", "Time");
-				data[servername].addColumn("number", name);
-				options[servername] = { hAxis: { title: 'Time' }, vAxis: { title: property} };
-				chart[servername] = new google.visualization.LineChart(document.getElementById(servername + "_graph_div"));
-				chart[servername].draw(data[servername], options[servername]);
-	
-				$.ajax({
-					type: "GET",
-					url: "http://" + window.location.host + "/rest/datapoint",
-					dataType: "json",
-					contentType: "application/json",
-					success: function(jsondata) {
-						jsondata.reverse();
-						for(var i = 0; i < jsondata.length; i++) {
-							data[servername].addRow([new Date(jsondata[i].dataTimeStamp * 1), jsondata[i].dataValue * 1]);
-						}
-						chart[servername].draw(data[servername], options[servername]);
-					},
-					data: {serverName: servername, dataName: name, dataType: type, dataProperty: property, amount: n}
-				});
-			}
-
-			function WebSocketTest() {
-				if ("WebSocket" in window) {
-					var url = 'ws://' + window.location.host + '/websocket';
-					console.log(url);
-					var ws = new WebSocket(url);
-					
-					ws.onopen = function()  {
-						console.log("Connection Opened");
-						ws.send("all");
-					};
-
-					ws.onmessage = function (evt) { 
-						if(evt.data == "session opened") return;
-						var msg = JSON.parse(evt.data);
-						//console.log(msg);
-						
-						document.getElementById(msg.serverName + "_lastupdated").innerHTML = new Date(msg.dataTimeStamp * 1);
-						if(msg.dataType == 'System' && msg.dataName == 'Load' && msg.dataProperty == '5min') {
-							if(data[msg.serverName].getNumberOfRows() > 0) {
-								data[msg.serverName].addRow([new Date(msg.dataTimeStamp * 1), msg.dataValue * 1]);
-							}
-							while(data[msg.serverName].getNumberOfRows() > n) data[msg.serverName].removeRow(0);
-							chart[msg.serverName].draw(data[msg.serverName], options[msg.serverName]);
-						}
-					};
-
-					ws.onclose = function (evt) {
-						console.log("Connection Closed");
-					};
-
-				} else {
-					alert("WebSocket NOT supported by your Browser!");
-				}
-			}
-			window.addEventListener("load", WebSocketTest, false);
-		/* ]]> */
-		</script>
+		
 	</ui:define>
 
 	<ui:define name="footer">
