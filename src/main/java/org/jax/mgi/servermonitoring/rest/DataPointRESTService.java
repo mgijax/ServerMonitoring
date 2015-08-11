@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -36,6 +37,9 @@ import com.wordnik.swagger.annotations.ApiParam;
 public class DataPointRESTService {
 
 	@Inject
+	private Logger log;
+	
+	@Inject
 	private Validator validator;
 	
 	@Inject
@@ -59,6 +63,9 @@ public class DataPointRESTService {
 
 			builder = Response.ok();
 		} catch (Exception e) {
+
+			log.info("Unable to save data point: " + data);
+			log.info("Error: " + e.getMessage());
 			// Handle generic exceptions
 			Map<String, String> responseObj = new HashMap<>();
 			responseObj.put("error", e.getMessage());
