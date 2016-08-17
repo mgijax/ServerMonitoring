@@ -19,15 +19,20 @@ package org.jax.mgi.servermonitoring.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import javax.ejb.AccessTimeout;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.jax.mgi.servermonitoring.model.DataName;
 import org.jax.mgi.servermonitoring.model.DataPoint;
 import org.jax.mgi.servermonitoring.model.DataPointDTO;
@@ -273,6 +278,15 @@ public class DataPointService {
 				.setParameter("dataType", dataType.getId())
 				.setParameter("dataName", dataName.getId())
 				.getResultList();
+	}
+	
+	@TransactionAttribute()
+	@AccessTimeout(unit = TimeUnit.MINUTES, value = 1)
+	@Schedule(hour="*", minute="*/5", second="2", persistent=false)
+	public void cleanUpDataBase() {
+		Date date = DateUtils.addDays(new Date(),-45);
+		em.createQuery("delete from DataPoint d where d.dataTimeStamp < :date").setParameter("date", date).executeUpdate();
+		//System.out.println("Cleaning up old entries in the database");
 	}
 
 }

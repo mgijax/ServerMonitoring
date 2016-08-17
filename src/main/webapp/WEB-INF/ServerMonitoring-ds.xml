@@ -25,8 +25,8 @@
         <connection-url>jdbc:postgresql://${db.hostname}:5432/${db.database}</connection-url>
         <driver>postgres</driver>
         <pool>
-            <min-pool-size>0</min-pool-size>
-            <max-pool-size>5</max-pool-size>
+            <min-pool-size>1</min-pool-size>
+            <max-pool-size>7</max-pool-size>
             <prefill>false</prefill>
         </pool>
         <security>
