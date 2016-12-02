@@ -6,9 +6,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jax.mgi.servermonitoring.model.config.ServerConfig;
 
 import com.wordnik.swagger.annotations.ApiModel;
 
@@ -23,29 +26,36 @@ public class ServerName implements Serializable {
     @GeneratedValue
     private Long id;
 	private String name;
+	
+	@OneToOne
+	private ServerConfig serverConfig;
 
 	public ServerName() { }
 	
-    public ServerName(String serverName) {
+    public ServerName(String serverName, ServerConfig serverConfig) {
 		this.name = serverName;
+		this.serverConfig = serverConfig;
 	}
 
 	public Long getId() {
 		return id;
 	}
-
 	public void setId(Long id) {
 		this.id = id;
 	}
-
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+	public ServerConfig getServerConfig() {
+		return serverConfig;
+	}
+	public void setServerConfig(ServerConfig serverConfig) {
+		this.serverConfig = serverConfig;
+	}
+
 	public String toString() {
 		return "ServerName[Id: " + id + " Name: " + name + "]";
 	}

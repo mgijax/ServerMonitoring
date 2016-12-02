@@ -40,6 +40,7 @@ import org.jax.mgi.servermonitoring.model.DataProperty;
 import org.jax.mgi.servermonitoring.model.DataSensor;
 import org.jax.mgi.servermonitoring.model.DataType;
 import org.jax.mgi.servermonitoring.model.ServerName;
+import org.jax.mgi.servermonitoring.model.config.ServerConfig;
 
 // The @Stateless annotation eliminates the need for manual transaction demarcation
 @Stateless
@@ -221,7 +222,9 @@ public class DataPointService {
 					.setParameter("name", data.getServerName()).getSingleResult();
 		} catch(NoResultException e) {
 			if(createNew) {
-				ServerName serverName = new ServerName(data.getServerName());
+				ServerConfig config = new ServerConfig();
+				em.persist(config);
+				ServerName serverName = new ServerName(data.getServerName(), config);
 				em.persist(serverName);
 				return serverName;
 			} else {
