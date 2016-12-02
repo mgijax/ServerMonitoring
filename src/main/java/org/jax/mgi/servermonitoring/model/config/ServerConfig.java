@@ -1,6 +1,7 @@
 package org.jax.mgi.servermonitoring.model.config;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,18 +23,63 @@ import com.wordnik.swagger.annotations.ApiModel;
 public class ServerConfig implements Serializable {
 
 	@Id
-    @GeneratedValue
-    private Long id;
+	@GeneratedValue
+	private Long id;
 	private String clientName;
 	private String clientArch;
-	
+
 	@OneToMany(mappedBy="serverConfig")
-	private List<ServerConfigType> types;
-	
+	private List<ServerConfigType> types = new ArrayList<ServerConfigType>();
+
 	private Date lastUpdate;
-	
+
+	public ServerConfig(String clientName, String clientArch) {
+		this.clientName = clientName;
+		this.clientArch = clientArch;
+		System.out.println("NEED TO IMPLEMENT BUILDING DEFAULT CONFIG");
+		int frequency = 60;
+		ServerConfigType type = new ServerConfigType("System");
+		ServerConfigName name = new ServerConfigName("Load", frequency);
+		type.getNames().add(name);
+		name = new ServerConfigName("Uptime", frequency);
+		type.getNames().add(name);
+		name = new ServerConfigName("Info", 86400);
+		type.getNames().add(name);
+		name = new ServerConfigName("Users", frequency);
+		type.getNames().add(name);
+		types.add(type);
+		
+		type = new ServerConfigType("Memory");
+		name = new ServerConfigName("Ram", frequency);
+		type.getNames().add(name);
+		name = new ServerConfigName("Swap", frequency);
+		type.getNames().add(name);
+		types.add(type);
+
+		type = new ServerConfigType("Disk");
+		name = new ServerConfigName("Speed", frequency);
+		name.getProperties().add(new ServerConfigProperty("/var/tmp/WatchDog_SpeedFile"));
+		type.getNames().add(name);
+		name = new ServerConfigName("Size", frequency);
+		name.getProperties().add(new ServerConfigProperty("/var/tmp/WatchDog_SpeedFile"));
+		type.getNames().add(name);
+		types.add(type);
+
+		type = new ServerConfigType("Network");
+		name = new ServerConfigName("Errors", frequency);
+		name.getProperties().add(new ServerConfigProperty("eth0"));
+		name.getProperties().add(new ServerConfigProperty("lo"));
+		type.getNames().add(name);
+		name = new ServerConfigName("Bandwidth", frequency);
+		name.getProperties().add(new ServerConfigProperty("eth0"));
+		name.getProperties().add(new ServerConfigProperty("lo"));
+		type.getNames().add(name);
+		types.add(type);
+
+	}
+
 	public ServerConfig() { }
-	
+
 	public Long getId() {
 		return id;
 	}

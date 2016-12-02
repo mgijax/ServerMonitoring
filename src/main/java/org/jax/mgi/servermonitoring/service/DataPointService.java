@@ -41,6 +41,10 @@ import org.jax.mgi.servermonitoring.model.DataSensor;
 import org.jax.mgi.servermonitoring.model.DataType;
 import org.jax.mgi.servermonitoring.model.ServerName;
 import org.jax.mgi.servermonitoring.model.config.ServerConfig;
+import org.jax.mgi.servermonitoring.model.config.ServerConfigName;
+import org.jax.mgi.servermonitoring.model.config.ServerConfigProperty;
+import org.jax.mgi.servermonitoring.model.config.ServerConfigType;
+import org.jax.mgi.servermonitoring.model.config.ServerInfoDTO;
 
 // The @Stateless annotation eliminates the need for manual transaction demarcation
 @Stateless
@@ -221,15 +225,42 @@ public class DataPointService {
 			return (ServerName)em.createQuery("select sn from ServerName sn where name = :name")
 					.setParameter("name", data.getServerName()).getSingleResult();
 		} catch(NoResultException e) {
-			if(createNew) {
-				ServerConfig config = new ServerConfig();
-				em.persist(config);
-				ServerName serverName = new ServerName(data.getServerName(), config);
-				em.persist(serverName);
-				return serverName;
-			} else {
-				return null;
+			return createNewServer(createNew, data.getServerName(), null);
+		}
+	}
+	
+	public ServerName getServerName(ServerInfoDTO data, boolean createNew) {
+		try {
+			if(debug) log.info("getServerName: " + "select sn from ServerName sn where name = :name");
+			return (ServerName)em.createQuery("select sn from ServerName sn where name = :name")
+					.setParameter("name", data.getClientName()).getSingleResult();
+		} catch(NoResultException e) {
+			return createNewServer(createNew, data.getClientName(), data.getClientArch());
+		}
+	}
+
+	private ServerName createNewServer(boolean createNew, String name, String arch) {
+		if(createNew) {
+			ServerConfig config = new ServerConfig(name, arch);
+			em.persist(config);
+			for(ServerConfigType t: config.getTypes()) {
+				t.setServerConfig(config);
+				em.persist(t);
+				for(ServerConfigName n: t.getNames()) {
+					n.setServerConfigType(t);
+					em.persist(n);
+					for(ServerConfigProperty p: n.getProperties()) {
+						p.setServerConfigName(n);
+						em.persist(p);
+					}
+				}
 			}
+			
+			ServerName serverName = new ServerName(name, config);
+			em.persist(serverName);
+			return serverName;
+		} else {
+			return null;
 		}
 	}
 

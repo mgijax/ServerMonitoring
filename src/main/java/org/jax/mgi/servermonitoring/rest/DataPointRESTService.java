@@ -43,7 +43,7 @@ public class DataPointRESTService {
 	private Validator validator;
 	
 	@Inject
-	private DataPointService dataPointManager;
+	private DataPointService dataPointService;
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -59,7 +59,7 @@ public class DataPointRESTService {
 			// Validates member using bean validation
 			validateData(data);
 			
-			dataPointManager.createDataPoint(data);
+			dataPointService.createDataPoint(data);
 
 			builder = Response.ok();
 		} catch (Exception e) {
@@ -92,7 +92,7 @@ public class DataPointRESTService {
 			@ApiParam(value="Amount to return", defaultValue="720") @QueryParam(value = "amount") int amount) {
 		if(amount == 0) amount = 720;
 		DataPointDTO dto = new DataPointDTO(serverName, dataType, dataName, dataProperty);
-		return dataPointManager.listDataPoints(dto, amount);
+		return dataPointService.listDataPoints(dto, amount);
 	}
 	
 	private void validateData(DataPointDTO data) throws ConstraintViolationException, ValidationException {

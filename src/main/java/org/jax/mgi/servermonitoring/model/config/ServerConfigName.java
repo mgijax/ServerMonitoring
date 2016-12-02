@@ -1,6 +1,7 @@
 package org.jax.mgi.servermonitoring.model.config;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -33,13 +34,22 @@ public class ServerConfigName implements Serializable {
 	// Web(Apache, PWI)
 	// Network(Errors(Interface), Bandwidth(Interface))
 	private String name;
+	private int frequency = 60;
+	private boolean active = false;
 	
 	@ManyToOne
 	private ServerConfigType serverConfigType;
 	
 	@OneToMany(mappedBy="serverConfigName")
-	private List<ServerConfigProperty> properties;
+	private List<ServerConfigProperty> properties = new ArrayList<ServerConfigProperty>();
 
+	public ServerConfigName() { }
+	
+	public ServerConfigName(String name, int frequency) {
+		active = true;
+		this.name = name;
+		this.frequency = frequency;
+	}
 	
 	public Long getId() {
 		return id;
@@ -52,6 +62,18 @@ public class ServerConfigName implements Serializable {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public int getFrequency() {
+		return frequency;
+	}
+	public void setFrequency(int frequency) {
+		this.frequency = frequency;
+	}
+	public boolean isActive() {
+		return active;
+	}
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 	public ServerConfigType getServerConfigType() {
 		return serverConfigType;

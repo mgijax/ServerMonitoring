@@ -1,6 +1,7 @@
 package org.jax.mgi.servermonitoring.model.config;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -26,13 +27,21 @@ public class ServerConfigType implements Serializable {
     private Long id;
 	
 	private String type; // System, Memory, Disk, Database, Web, Network
+	private boolean active = false;
 	
 	@ManyToOne
 	private ServerConfig serverConfig;
 	
 	@OneToMany(mappedBy="serverConfigType")
-	private List<ServerConfigName> names;
+	private List<ServerConfigName> names = new ArrayList<ServerConfigName>();
 
+	public ServerConfigType() { }
+	
+	public ServerConfigType(String type) {
+		active = true;
+		this.type = type;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -44,6 +53,12 @@ public class ServerConfigType implements Serializable {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public boolean isActive() {
+		return active;
+	}
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 	public ServerConfig getServerConfig() {
 		return serverConfig;

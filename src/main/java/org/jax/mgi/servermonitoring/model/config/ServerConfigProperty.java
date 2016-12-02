@@ -28,7 +28,15 @@ public class ServerConfigProperty implements Serializable {
 	
 	// Volumes and Interfaces
 	private String property;
-
+	private boolean active = false;
+	
+	public ServerConfigProperty() { }
+	
+	public ServerConfigProperty(String property) {
+		active = true;
+		this.property = property;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -46,5 +54,11 @@ public class ServerConfigProperty implements Serializable {
 	}
 	public void setProperty(String property) {
 		this.property = property;
+	}
+	public boolean isActive() {
+		return active;
+	}
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }
