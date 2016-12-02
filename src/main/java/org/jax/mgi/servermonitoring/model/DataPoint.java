@@ -3,6 +3,7 @@ package org.jax.mgi.servermonitoring.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -35,7 +36,9 @@ public class DataPoint implements Serializable {
 
 	@NotNull
 	@NotEmpty
+	@Column(columnDefinition="Text")
 	private String dataValue;
+	
 	private Date dataTimeStamp;
 
 	public DataPoint() { }
