@@ -36,7 +36,7 @@ public class ServerConfig implements Serializable {
 	public ServerConfig(String clientName, String clientArch) {
 		this.clientName = clientName;
 		this.clientArch = clientArch;
-		System.out.println("NEED TO IMPLEMENT BUILDING DEFAULT CONFIG");
+
 		int frequency = 60;
 		ServerConfigType type = new ServerConfigType("System");
 		ServerConfigName name = new ServerConfigName("Load", frequency);

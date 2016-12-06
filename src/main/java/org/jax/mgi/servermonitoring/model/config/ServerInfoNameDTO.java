@@ -6,12 +6,13 @@ import java.util.List;
 public class ServerInfoNameDTO {
 
 	private String name;
-	private int frequency = 60;
+	private int frequency;
 	
 	private List<ServerInfoPropertyDTO> properties = new ArrayList<ServerInfoPropertyDTO>();
 
 	public ServerInfoNameDTO(ServerConfigName name) {
 		this.name = name.getName();
+		this.frequency = name.getFrequency();
 		for(ServerConfigProperty p: name.getProperties()) {
 			properties.add(new ServerInfoPropertyDTO(p));
 		}

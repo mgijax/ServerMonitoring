@@ -221,7 +221,7 @@ public class DataPointService {
 
 	private ServerName getServerName(DataPointDTO data, boolean createNew) {
 		try {
-			if(debug) log.info("getServerName: " + "select sn from ServerName sn where name = :name");
+			if(debug) log.info("getServerName (DataPointDTO): " + "select sn from ServerName sn where name = :name");
 			return (ServerName)em.createQuery("select sn from ServerName sn where name = :name")
 					.setParameter("name", data.getServerName()).getSingleResult();
 		} catch(NoResultException e) {
@@ -231,7 +231,7 @@ public class DataPointService {
 	
 	public ServerName getServerName(ServerInfoDTO data, boolean createNew) {
 		try {
-			if(debug) log.info("getServerName: " + "select sn from ServerName sn where name = :name");
+			if(debug) log.info("getServerName (ServerInfoDTO): " + "select sn from ServerName sn where name = :name");
 			return (ServerName)em.createQuery("select sn from ServerName sn where name = :name")
 					.setParameter("name", data.getClientName()).getSingleResult();
 		} catch(NoResultException e) {
@@ -240,6 +240,7 @@ public class DataPointService {
 	}
 
 	private ServerName createNewServer(boolean createNew, String name, String arch) {
+		if(debug) log.info("Creating new Server: " + name + " Arch: " + arch);
 		if(createNew) {
 			ServerConfig config = new ServerConfig(name, arch);
 			em.persist(config);
